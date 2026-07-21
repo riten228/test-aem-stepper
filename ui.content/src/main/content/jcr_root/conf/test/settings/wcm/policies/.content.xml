@@ -34,7 +34,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Adaptive Form Stepper Wizard"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/apps/core/fd/components/form/panelcontainer/v1/panelcontainer,/apps/core/fd/components/form/fragment/v1/fragment,/apps/core/fd/components/form/textinput/v1/textinput,/apps/core/fd/components/form/emailinput/v1/emailinput,/apps/core/fd/components/form/checkbox/v1/checkbox,/apps/core/fd/components/form/radiobutton/v1/radiobutton,/apps/core/fd/components/form/datepicker/v1/datepicker,/apps/core/fd/components/form/fileinput/v1/fileinput]">
+                        components="[core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/fragment/v1/fragment,core/fd/components/form/textinput/v1/textinput,core/fd/components/form/emailinput/v1/emailinput,core/fd/components/form/checkbox/v1/checkbox,core/fd/components/form/radiobutton/v1/radiobutton,core/fd/components/form/datepicker/v1/datepicker,core/fd/components/form/fileinput/v1/fileinput]">
                         <jcr:content jcr:primaryType="nt:unstructured"/>
                     </stepper-policy>
                     <wizard-step-policy
@@ -42,7 +42,7 @@
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Adaptive Form Stepper Step"
                         sling:resourceType="wcm/core/components/policy/policy"
-                        components="[/apps/core/fd/components/form/textinput/v1/textinput,/apps/core/fd/components/form/emailinput/v1/emailinput,/apps/core/fd/components/form/checkbox/v1/checkbox,/apps/core/fd/components/form/radiobutton/v1/radiobutton,/apps/core/fd/components/form/datepicker/v1/datepicker,/apps/core/fd/components/form/fileinput/v1/fileinput,/apps/core/fd/components/form/panelcontainer/v1/panelcontainer,/apps/core/fd/components/form/fragment/v1/fragment]">
+                        components="[core/fd/components/form/textinput/v1/textinput,core/fd/components/form/emailinput/v1/emailinput,core/fd/components/form/checkbox/v1/checkbox,core/fd/components/form/radiobutton/v1/radiobutton,core/fd/components/form/datepicker/v1/datepicker,core/fd/components/form/fileinput/v1/fileinput,core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/fragment/v1/fragment]">
                         <jcr:content jcr:primaryType="nt:unstructured"/>
                     </wizard-step-policy>
                 </wizard>
@@ -375,7 +375,7 @@
         <foundation jcr:primaryType="nt:unstructured">
             <components jcr:primaryType="nt:unstructured">
                 <responsivegrid jcr:primaryType="nt:unstructured">
-            
+
                 </responsivegrid>
             </components>
         </foundation>
