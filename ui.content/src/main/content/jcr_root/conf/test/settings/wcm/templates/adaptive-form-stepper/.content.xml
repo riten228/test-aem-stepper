@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0"
     xmlns:jcr="http://www.jcp.org/jcr/1.0"
-    jcr:primaryType="cq:Template">
+    jcr:primaryType="cq:Template"
+    jcr:title="Adaptive Form Stepper"
+    jcr:description="Adaptive form template preconfigured with an AEM Forms Core Components wizard."
+    allowedPaths="[/content/forms/af(/.*)?,/content/dam/formsanddocuments(/.*)?]">
     <jcr:content
         cq:templateType="/conf/test/settings/wcm/template-types/page"
-        jcr:description="Adaptive form template preconfigured with an AEM Forms Core Components wizard."
+        cq:designPath="/etc/designs/test"
         jcr:primaryType="cq:PageContent"
         jcr:title="Adaptive Form Stepper"
-        allowedPaths="[/content/forms/af(/.*)?,/content/dam/formsanddocuments(/.*)?]"
-        status="enabled"/>
+        jcr:description="Adaptive form template preconfigured with an AEM Forms Core Components wizard."
+        status="enabled"
+        guideComponentType="fd/af/templates"/>
 </jcr:root>
