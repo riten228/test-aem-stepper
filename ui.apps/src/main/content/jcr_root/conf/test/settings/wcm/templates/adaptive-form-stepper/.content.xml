@@ -1,40 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
-          xmlns:cq="http://www.day.com/jcr/cq/1.0"
-          xmlns:jcr="http://www.jcp.org/jcr/1.0"
-          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
-          jcr:description="Template with Adaptive Form Stepper layout"
-          jcr:primaryType="cq:Template"
-          jcr:title="Adaptive Forms Core Stepper Template"
-          allowedPaths="[/content/forms/af(/.*)?,/content/dam/formsanddocuments(/.*)?]">
-
-  <jcr:content
-    jcr:primaryType="cq:PageContent"
-    jcr:title="Responsive Stepper Form Template"
-    sling:resourceSuperType="core/fd/components/page/v1/page"
-    sling:resourceType="core/fd/components/page/v1/page"
-    guideComponentType="fd/af/templates">
-
-    <formcontainer
-      jcr:primaryType="nt:unstructured"
-      sling:resourceType="core/fd/components/formscontainer/v1/formscontainer"
-      cq:isContainer="{Boolean}true"
-      cq:policy="/conf/test/settings/wcm/policies/formscontainer/default-policy">
-
-      <wizard
-        jcr:primaryType="nt:unstructured"
-        sling:resourceType="core/fd/components/forms/wizard/v1/wizard"
-        cq:isContainer="{Boolean}true"
-        cq:policy="/conf/test/settings/wcm/policies/wizard/stepper-policy">
-
-        <items
-          jcr:primaryType="nt:unstructured"
-          cq:isContainer="{Boolean}true"
-          cq:policy="/conf/test/settings/wcm/policies/wizard/panel-policy"/>
-
-      </wizard>
-
-    </formcontainer>
-
-  </jcr:content>
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:description="Template with Adaptive Form Stepper layout"
+    jcr:primaryType="cq:Template"
+    jcr:title="Adaptive Form Stepper"
+    allowedPaths="[/content/forms/af(/.*)?,/content/dam/formsanddocuments(/.*)?]">
+    <jcr:content
+        jcr:primaryType="cq:PageContent"
+        jcr:title="Adaptive Form Stepper"
+        jcr:description="Adaptive form template preconfigured with an AEM Forms Core Components wizard."
+        sling:resourceSuperType="core/fd/components/page/v1/page"
+        sling:resourceType="core/fd/components/page/v1/page"
+        guideComponentType="fd/af/templates">
+        <formcontainer
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="core/fd/components/form/container/v1/container"
+            cq:isContainer="{Boolean}true"
+            cq:policy="/conf/test/settings/wcm/policies/test/components/forms/container/stepper-form-container"
+            name="guideContainer"
+            fieldType="form">
+            <wizard
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="core/fd/components/forms/wizard/v1/wizard"
+                cq:isContainer="{Boolean}true"
+                cq:policy="/conf/test/settings/wcm/policies/test/components/forms/wizard/stepper-policy"
+                fieldType="panel"
+                name="wizard">
+                <items
+                    jcr:primaryType="nt:unstructured"
+                    cq:isContainer="{Boolean}true"
+                    cq:policy="/conf/test/settings/wcm/policies/test/components/forms/wizard/wizard-step-policy"/>
+            </wizard>
+        </formcontainer>
+    </jcr:content>
 </jcr:root>
