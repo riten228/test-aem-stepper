@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0"
+          xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          jcr:primaryType="cq:Policy">
+
+  <!--/* Allow panel components inside wizard items */-->
+  <components
+    jcr:primaryType="nt:unstructured"
+    cq:allowedComponents="[
+      'core/fd/components/form/panelcontainer/v1/panelcontainer'
+    ]"/>
+
+</jcr:root>
