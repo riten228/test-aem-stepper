@@ -1,0 +1,91 @@
+<!--/*
+    Copyright 2024 Riten
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/-->
+
+<!--/* Main Stepper Form Component
+     Renders a two-panel adaptive form stepper:
+       - Left panel: clickable step navigation list
+       - Right panel: active step's form content with PREV/NEXT/SUBMIT buttons
+     Steps are loaded dynamically from the items/* child resources via StepperFormModel.
+*/-->
+
+<div data-sly-use.model="com.riten.test.core.models.StepperFormModel"
+     data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
+     class="stepper-wrapper"
+     data-cmp-is="stepper-form"
+     id="${model.formId @ context='attribute'}">
+
+    <!--/* Include stepper clientlib */-->
+    <sly data-sly-call="${clientlib.css @ categories='test.stepper'}"/>
+
+    <div class="stepper-container" data-step-count="${model.stepCount}">
+
+        <!--/* ====== LEFT PANEL: Step Navigation ====== */-->
+        <aside class="stepper-sidebar" role="navigation" aria-label="Form Steps">
+            <ol class="steps-list" role="list">
+                <li data-sly-list.step="${model.steps}"
+                    class="step-item ${stepList.index == 0 ? 'step-item--active' : ''}"
+                    data-step-index="${step.index}"
+                    role="button"
+                    tabindex="${stepList.index == 0 ? '0' : '-1'}"
+                    aria-current="${stepList.index == 0 ? 'step' : false}"
+                    aria-label="Step ${step.displayIndex}: ${step.label}">
+                    <span class="step-number" aria-hidden="true">${step.displayIndex}</span>
+                    <span class="step-label">${step.label}</span>
+                    <span class="step-status-icon" aria-hidden="true"></span>
+                </li>
+            </ol>
+        </aside>
+
+        <!--/* ====== RIGHT PANEL: Step Content + Navigation Buttons ====== */-->
+        <main class="stepper-content" role="main">
+            <form class="step-form" data-form-id="${model.formId @ context='attribute'}" novalidate>
+
+                <!--/* Render all step panels; JS shows only the active one */-->
+                <div data-sly-list.step="${model.steps}"
+                     class="step-panel ${stepList.index == 0 ? 'step-panel--active' : ''}"
+                     data-step-panel="${step.index}"
+                     aria-hidden="${stepList.index != 0 ? 'true' : 'false'}">
+                    <h2 class="step-title">${step.label}</h2>
+                    <div class="step-content-area">
+                        <!--/* Include the step's child resource using the step sub-component */-->
+                        <sly data-sly-resource="${'items/' + step.nodeName @ resourceType='test/components/stepper-form/step'}"/>
+                    </div>
+                </div>
+
+                <!--/* Navigation Buttons */-->
+                <nav class="step-navigation" aria-label="Step Navigation">
+                    <button type="button"
+                            class="btn btn-prev"
+                            id="btn-prev"
+                            disabled
+                            aria-label="Go to previous step">PREV</button>
+                    <button type="button"
+                            class="btn btn-next"
+                            id="btn-next"
+                            aria-label="Go to next step">NEXT</button>
+                    <button type="submit"
+                            class="btn btn-submit"
+                            id="btn-submit"
+                            style="display:none"
+                            aria-label="Submit form">SUBMIT</button>
+                </nav>
+            </form>
+        </main>
+
+    </div>
+
+    <sly data-sly-call="${clientlib.js @ categories='test.stepper'}"/>
+</div>

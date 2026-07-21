@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Template structure for the Stepper Form template.
+
+    The stepper-form component is pre-placed on the page.
+    Under its items/ node, authors add one child node per step.
+    Each step node carries a jcr:title and may contain form-field
+    component children that are rendered by the step sub-component.
+
+    Example items layout (added by the author via the template editor):
+
+        items/
+          step1/   jcr:title="Personal Information"
+            textfield1/   sling:resourceType="core/wcm/components/form/text/v2/text"
+          step2/   jcr:title="Address Details"
+            textfield2/   sling:resourceType="core/wcm/components/form/text/v2/text"
+          step3/   jcr:title="Review & Submit"
+-->
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0"
+          xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Structure">
+    <jcr:content
+        jcr:primaryType="cq:PageContent"
+        sling:resourceType="test/components/page"
+        cq:designPath="/etc/designs/test">
+        <root
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="wcm/foundation/components/responsivegrid">
+            <stepper-form
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="test/components/stepper-form"
+                formId="stepperForm">
+                <!--
+                    Add step nodes here. Each node must have:
+                      - jcr:primaryType="nt:unstructured"
+                      - jcr:title="<Step Label>"
+                    Child form-field components are placed inside each step node.
+                -->
+                <items jcr:primaryType="nt:unstructured">
+                    <step1
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Step 1"/>
+                    <step2
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Step 2"/>
+                    <step3
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Step 3"/>
+                </items>
+            </stepper-form>
+        </root>
+    </jcr:content>
+</jcr:root>
