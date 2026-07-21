@@ -49,13 +49,17 @@ public class StepperFormModel {
 
     private List<StepModel> steps = new ArrayList<>();
 
+    /** Default step-title prefix used when {@code jcr:title} is not set on a step node. */
+    private static final String DEFAULT_STEP_TITLE_PREFIX = "Step ";
+
     @PostConstruct
     protected void init() {
         Resource itemsResource = resource.getChild("items");
         if (itemsResource != null) {
             int index = 0;
             for (Resource child : itemsResource.getChildren()) {
-                String title = child.getValueMap().get("jcr:title", "Step " + (index + 1));
+                String title = child.getValueMap().get("jcr:title",
+                        DEFAULT_STEP_TITLE_PREFIX + (index + 1));
                 steps.add(new StepModel(index, title, child.getPath(), child.getName()));
                 index++;
             }

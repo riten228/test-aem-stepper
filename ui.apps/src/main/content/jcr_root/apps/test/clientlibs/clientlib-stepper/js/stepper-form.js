@@ -170,7 +170,7 @@
         }
 
         var isValid = true;
-        var requiredFields = panel.querySelectorAll('[required]');
+        var requiredFields = Array.prototype.slice.call(panel.querySelectorAll('[required]'));
 
         requiredFields.forEach(function (field) {
             // Clear previous error state.
@@ -221,11 +221,13 @@
         this.stepItems.forEach(function (item, idx) {
             var isActive = idx === activeIndex;
             var isCompleted = item.classList.contains(COMPLETED_CLASS);
+            var isPending = !isActive && !isCompleted;
 
             item.classList.toggle(ACTIVE_CLASS, isActive);
 
-            // tabindex: active and completed items are reachable via keyboard.
-            item.setAttribute('tabindex', (isActive || isCompleted) ? '0' : '-1');
+            // All items stay in tab order (tabindex=0); aria-disabled signals
+            // pending state to assistive technology.
+            item.setAttribute('aria-disabled', isPending ? 'true' : 'false');
             item.setAttribute('aria-current', isActive ? 'step' : 'false');
         });
 
@@ -254,7 +256,7 @@
     /* ── Initialisation ────────────────────────────────── */
 
     function init() {
-        var wrappers = document.querySelectorAll('[data-cmp-is="stepper-form"]');
+        var wrappers = Array.prototype.slice.call(document.querySelectorAll('[data-cmp-is="stepper-form"]'));
         wrappers.forEach(function (wrapper) {
             new StepperForm(wrapper);
         });

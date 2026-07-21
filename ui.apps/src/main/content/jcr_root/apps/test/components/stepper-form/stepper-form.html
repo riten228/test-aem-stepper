@@ -39,8 +39,9 @@
                     class="step-item ${stepList.index == 0 ? 'step-item--active' : ''}"
                     data-step-index="${step.index}"
                     role="button"
-                    tabindex="${stepList.index == 0 ? '0' : '-1'}"
+                    tabindex="0"
                     aria-current="${stepList.index == 0 ? 'step' : false}"
+                    aria-disabled="${stepList.index != 0 ? 'true' : false}"
                     aria-label="Step ${step.displayIndex}: ${step.label}">
                     <span class="step-number" aria-hidden="true">${step.displayIndex}</span>
                     <span class="step-label">${step.label}</span>
