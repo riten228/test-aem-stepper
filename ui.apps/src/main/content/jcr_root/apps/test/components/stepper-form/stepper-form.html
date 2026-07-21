@@ -67,7 +67,9 @@
                     <h2 class="step-title">${step.label}</h2>
                     <div class="step-content-area">
                         <!--/* Include the step's child resource using the step sub-component */-->
-                        <sly data-sly-resource="${'items/' + step.nodeName @ resourceType='test/components/stepper-form/step'}"/>
+                        <sly data-sly-test.stepResourcePath="${'items/' @ i18n=step.nodeName}">
+                            <sly data-sly-resource="${stepResourcePath}items/${step.nodeName} @ resourceType='test/components/stepper-form/step'}"/>
+                        </sly>
                     </div>
                 </div>
 
