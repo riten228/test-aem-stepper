@@ -17,6 +17,36 @@
                     </form-container>
                 </container>
             </form>
+            <forms jcr:primaryType="nt:unstructured">
+                <container jcr:primaryType="nt:unstructured">
+                    <stepper-form-container
+                        jcr:description="Allows only the project wizard proxy inside the adaptive form container."
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Adaptive Form Stepper Container"
+                        sling:resourceType="wcm/core/components/policy/policy"
+                        components="[/apps/test/components/forms/wizard]">
+                        <jcr:content jcr:primaryType="nt:unstructured"/>
+                    </stepper-form-container>
+                </container>
+                <wizard jcr:primaryType="nt:unstructured">
+                    <stepper-policy
+                        jcr:description="Allows wizard step panels, reusable fragments, and key adaptive form fields to be added to the stepper."
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Adaptive Form Stepper Wizard"
+                        sling:resourceType="wcm/core/components/policy/policy"
+                        components="[/apps/core/fd/components/form/panelcontainer/v1/panelcontainer,/apps/core/fd/components/form/fragment/v1/fragment,/apps/core/fd/components/form/textinput/v1/textinput,/apps/core/fd/components/form/emailinput/v1/emailinput,/apps/core/fd/components/form/checkbox/v1/checkbox,/apps/core/fd/components/form/radiobutton/v1/radiobutton,/apps/core/fd/components/form/datepicker/v1/datepicker,/apps/core/fd/components/form/fileinput/v1/fileinput]">
+                        <jcr:content jcr:primaryType="nt:unstructured"/>
+                    </stepper-policy>
+                    <wizard-step-policy
+                        jcr:description="Allows adaptive form fields and reusable fragments inside each wizard step panel."
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Adaptive Form Stepper Step"
+                        sling:resourceType="wcm/core/components/policy/policy"
+                        components="[/apps/core/fd/components/form/textinput/v1/textinput,/apps/core/fd/components/form/emailinput/v1/emailinput,/apps/core/fd/components/form/checkbox/v1/checkbox,/apps/core/fd/components/form/radiobutton/v1/radiobutton,/apps/core/fd/components/form/datepicker/v1/datepicker,/apps/core/fd/components/form/fileinput/v1/fileinput,/apps/core/fd/components/form/panelcontainer/v1/panelcontainer,/apps/core/fd/components/form/fragment/v1/fragment]">
+                        <jcr:content jcr:primaryType="nt:unstructured"/>
+                    </wizard-step-policy>
+                </wizard>
+            </forms>
             <languagenavigation jcr:primaryType="nt:unstructured">
                 <policy_xfm
                     jcr:primaryType="nt:unstructured"

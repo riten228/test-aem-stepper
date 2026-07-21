@@ -8,4 +8,5 @@
     </filter>
     <filter root="/content/dam/test/asset.jpg" mode="merge"/>
     <filter root="/content/experience-fragments/test" mode="merge"/>
+    <filter root="/content/forms" mode="merge"/>
 </workspaceFilter>

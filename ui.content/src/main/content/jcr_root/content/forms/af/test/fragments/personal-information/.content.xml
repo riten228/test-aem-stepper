@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="cq:Page">
+    <jcr:content
+        jcr:primaryType="cq:PageContent"
+        jcr:title="Personal Information Fragment"
+        sling:resourceType="test/components/page">
+        <root
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="wcm/foundation/components/responsivegrid">
+            <formContainer
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="core/fd/components/form/container/v1/container"
+                fieldType="form"
+                name="guideContainer">
+                <personalInformation
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core/fd/components/form/panelcontainer/v1/panelcontainer"
+                    jcr:title="Personal Information"
+                    name="personalInformation">
+                    <firstName
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core/fd/components/form/textinput/v1/textinput"
+                        jcr:title="First Name"
+                        name="firstName"
+                        required="{Boolean}true"/>
+                    <email
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core/fd/components/form/emailinput/v1/emailinput"
+                        jcr:title="Email"
+                        name="email"
+                        required="{Boolean}true"/>
+                </personalInformation>
+            </formContainer>
+        </root>
+    </jcr:content>
+</jcr:root>
