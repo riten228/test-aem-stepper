@@ -108,6 +108,35 @@ class StepperFormModelTest {
     }
 
     @Test
+    void testFormActionDefault() {
+        StepperFormModel model = stepperResource.adaptTo(StepperFormModel.class);
+        assertNotNull(model);
+        // no formAction set on the resource → should fall back to "#"
+        assertEquals("#", model.getFormAction());
+    }
+
+    @Test
+    void testFormMethodDefault() {
+        StepperFormModel model = stepperResource.adaptTo(StepperFormModel.class);
+        assertNotNull(model);
+        // no formMethod set → should fall back to "POST"
+        assertEquals("POST", model.getFormMethod());
+    }
+
+    @Test
+    void testFormActionAndMethodOverride() {
+        Resource customStepperResource = context.create().resource(page, "customstepper",
+            "sling:resourceType", "test/components/stepper-form",
+            "formAction", "/bin/submitForm",
+            "formMethod", "GET");
+
+        StepperFormModel model = customStepperResource.adaptTo(StepperFormModel.class);
+        assertNotNull(model);
+        assertEquals("/bin/submitForm", model.getFormAction());
+        assertEquals("GET", model.getFormMethod());
+    }
+
+    @Test
     void testStepCount() {
         StepperFormModel model = stepperResource.adaptTo(StepperFormModel.class);
         assertNotNull(model);

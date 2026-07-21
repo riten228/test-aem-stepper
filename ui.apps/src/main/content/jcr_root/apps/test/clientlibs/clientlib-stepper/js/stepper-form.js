@@ -33,6 +33,10 @@
         this.totalSteps = this.stepItems.length;
         this.currentIndex = 0;
 
+        var form = wrapper.querySelector('.step-form');
+        this.errorRequiredMsg = (form && form.getAttribute('data-error-required'))
+            || 'This field is required.';
+
         this._bindEvents();
         this._syncUI(0);
     }
@@ -191,7 +195,7 @@
                 field.classList.add(FIELD_ERROR_CLASS);
                 var msg = document.createElement('span');
                 msg.className = 'field-error-message';
-                msg.textContent = 'This field is required.';
+                msg.textContent = self.errorRequiredMsg;
                 field.parentNode.appendChild(msg);
                 isValid = false;
             }

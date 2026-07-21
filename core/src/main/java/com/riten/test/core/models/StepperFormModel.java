@@ -47,6 +47,12 @@ public class StepperFormModel {
     @ValueMapValue
     private String formId;
 
+    @ValueMapValue
+    private String formAction;
+
+    @ValueMapValue
+    private String formMethod;
+
     private List<StepModel> steps = new ArrayList<>();
 
     /** Default step-title prefix used when {@code jcr:title} is not set on a step node. */
@@ -78,6 +84,20 @@ public class StepperFormModel {
      */
     public String getFormId() {
         return formId;
+    }
+
+    /**
+     * @return form submission URL; defaults to {@code "#"} when not configured
+     */
+    public String getFormAction() {
+        return (formAction != null && !formAction.isEmpty()) ? formAction : "#";
+    }
+
+    /**
+     * @return form HTTP method; defaults to {@code "POST"} when not configured
+     */
+    public String getFormMethod() {
+        return (formMethod != null && !formMethod.isEmpty()) ? formMethod : "POST";
     }
 
     /**

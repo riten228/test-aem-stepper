@@ -20,6 +20,30 @@
                         fieldLabel="Form ID"
                         fieldDescription="Optional HTML id attribute for the form element."
                         name="./formId"/>
+                    <formAction
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                        fieldLabel="Form Action URL"
+                        fieldDescription="The URL where form data is submitted. Defaults to '#' if left blank."
+                        name="./formAction"/>
+                    <formMethod
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                        fieldLabel="Form Method"
+                        fieldDescription="HTTP method used when submitting the form."
+                        name="./formMethod">
+                        <items jcr:primaryType="nt:unstructured">
+                            <post
+                                jcr:primaryType="nt:unstructured"
+                                text="POST"
+                                value="POST"
+                                selected="{Boolean}true"/>
+                            <get
+                                jcr:primaryType="nt:unstructured"
+                                text="GET"
+                                value="GET"/>
+                        </items>
+                    </formMethod>
                     <steps
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/multifield"

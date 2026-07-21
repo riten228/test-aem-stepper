@@ -241,9 +241,11 @@
 
 /* ── Validation error state ──────────────────────────── */
 
-.field-error {
-    border-color: #e53935 !important;
-    background-color: #fff5f5 !important;
+.step-panel input.field-error,
+.step-panel select.field-error,
+.step-panel textarea.field-error {
+    border-color: #e53935;
+    background-color: #fff5f5;
 }
 
 .field-error-message {

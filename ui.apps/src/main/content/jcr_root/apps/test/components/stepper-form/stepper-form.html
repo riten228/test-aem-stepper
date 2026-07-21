@@ -52,7 +52,12 @@
 
         <!--/* ====== RIGHT PANEL: Step Content + Navigation Buttons ====== */-->
         <main class="stepper-content" role="main">
-            <form class="step-form" data-form-id="${model.formId @ context='attribute'}" novalidate>
+            <form class="step-form"
+                  data-form-id="${model.formId @ context='attribute'}"
+                  action="${model.formAction @ context='attribute'}"
+                  method="${model.formMethod @ context='attribute'}"
+                  data-error-required="This field is required."
+                  novalidate>
 
                 <!--/* Render all step panels; JS shows only the active one */-->
                 <div data-sly-list.step="${model.steps}"
