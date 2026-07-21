@@ -2,7 +2,7 @@
     'use strict';
 
     document.addEventListener('DOMContentLoaded', function () {
-        Array.prototype.forEach.call(document.querySelectorAll('.cmp-adaptiveform-wizard'), function (wizard) {
+        Array.from(document.querySelectorAll('.cmp-adaptiveform-wizard')).forEach(function (wizard) {
             wizard.classList.add('test-adaptiveform-wizard');
         });
     });
