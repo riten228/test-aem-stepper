@@ -1,2 +1,0 @@
-#base=js
-stepper-form.js

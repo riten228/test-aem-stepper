@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
-    jcr:primaryType="cq:Component"
-    jcr:title="Stepper Form"
-    jcr:description="Dynamic multi-step form with left navigation panel and right content panel."
-    componentGroup="Test Sites Project - Forms"/>
