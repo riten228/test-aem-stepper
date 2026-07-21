@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
-          xmlns:cq="http://www.day.com/jcr/cq/1.0"
-          xmlns:jcr="http://www.jcp.org/jcr/1.0"
-          jcr:primaryType="nt:unstructured"
-          sling:resourceType="wcm/core/components/policy/policy">
-  <components
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
     jcr:primaryType="nt:unstructured"
-    cq:allowedComponents="[
-            'test/components/forms/wizard',
-            'core/fd/components/forms/wizard/v1/wizard'
-        ]"/>
+    sling:resourceType="wcm/core/components/policy/policy"
+    jcr:title="Adaptive Form Stepper Container"
+    jcr:description="Allows only the project wizard proxy inside the adaptive form container."
+    components="[core/fd/components/forms/wizard/v1/wizard]">
+    <jcr:content jcr:primaryType="nt:unstructured"/>
 </jcr:root>
