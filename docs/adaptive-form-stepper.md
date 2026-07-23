@@ -36,7 +36,13 @@ Authors add step panels directly inside the wizard. Each step should use the Ada
 - **Wizard step policy** allows form fields and fragments inside each step panel.
 
 ## Styling customization
-`test.forms.wizard` embeds the Core Components wizard runtime clientlib and layers project CSS/JS on top. Override `wizard-custom.css` to change left navigation layout, spacing, colors, and responsive behavior without touching Adobe code.
+`test.forms.wizard` embeds the Core Components wizard runtime clientlib and layers project CSS/JS on top.
+
+**Clientlib scoping:** `test.forms.wizard` is **not** embedded in the global `test.base` clientlib. Instead it is loaded through `customheaderlibs.html` inside the wizard proxy component (`apps/test/components/forms/wizard`), so the CSS and JS are only included on pages that contain the wizard component.
+
+All CSS rules in `wizard-custom.css` are scoped under the `.test-adaptiveform-wizard` wrapper class, which `wizard-custom.js` adds to each `.cmp-adaptiveform-wizard` element on `DOMContentLoaded`. This double-scoping means the styles cannot bleed onto other components even in edge cases where the clientlib is loaded on a non-wizard page.
+
+Override `wizard-custom.css` to change left navigation layout, spacing, colors, and responsive behavior without touching Adobe code.
 
 ## Fragment notes
 The example fragments are reusable starter structures for common sections. Copy them or reference them from the Adaptive Form Fragment component to accelerate authoring.
