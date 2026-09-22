@@ -1,0 +1,126 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright 2022 Adobe
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.optioncontent="${ @ text, icon, iconIsImage, variant }">
+    <sly data-sly-test="${variant == 'default'}">
+        <span>${text @ context='html'}</span>
+    </sly>
+    <sly data-sly-test="${variant != 'default'}">
+        <span class="cmp-adaptiveform-radiobutton__option-content">
+            <sly data-sly-test="${variant == 'cardicon' && icon}">
+                <img data-sly-test="${iconIsImage}"
+                     class="cmp-adaptiveform-radiobutton__option-icon-image"
+                     src="${icon @ context='uri'}"
+                     alt=""
+                     aria-hidden="true"/>
+                <span data-sly-test="${!iconIsImage}"
+                      class="cmp-adaptiveform-radiobutton__option-icon ${icon @ context='attribute'}"
+                      aria-hidden="true"></span>
+            </sly>
+            <span class="cmp-adaptiveform-radiobutton__option-label-text">${text @ context='html'}</span>
+        </span>
+    </sly>
+</template>
+<sly data-sly-use.renderer="${'radiobutton.js'}"
+     data-sly-use.variantConfig="${'variantoptions.js'}"
+     data-sly-use.clientlib="${'/libs/granite/sightly/templates/clientlib.html'}"
+     data-sly-use.label="${renderer.labelPath}"
+     data-sly-use.shortdescription="${renderer.shortDescriptionPath}"
+     data-sly-use.longdescription="${renderer.longDescriptionPath}"
+     data-sly-use.errormessage="${renderer.errorMessagePath}"
+     data-sly-use.questionmark="${renderer.questionMarkPath}" />
+<div data-sly-test="${variantConfig.isMulti}"
+     class="cmp-adaptiveform-checkboxgroup cmp-adaptiveform-radiobutton${variantConfig.variantClass} cmp-adaptiveform-radiobutton--multiselect"
+     data-cmp-is="adaptiveFormCheckBoxGroup"
+     id="${checkboxgroup.id}"
+     data-sly-use.formstructparser="com.adobe.cq.forms.core.components.models.form.FormStructureParser"
+     data-sly-use.checkboxgroup="com.adobe.cq.forms.core.components.models.form.CheckBoxGroup"
+     data-cmp-visible="${checkboxgroup.visible ? 'true' : 'false'}"
+     data-cmp-enabled="${checkboxgroup.enabled ? 'true' : 'false'}"
+     data-cmp-required="${checkboxgroup.required ? 'true': 'false'}"
+     data-cmp-readonly="${checkboxgroup.readOnly ? 'true' : 'false'}"
+     data-cmp-data-layer="${checkboxgroup.data.json}"
+     data-cmp-adaptiveformcontainer-path="${formstructparser.formContainerPath}"
+     data-sly-test.widgetId="${'{0}-{1}' @ format=[checkboxgroup.id, 'widget']}">
+    <div class="cmp-adaptiveform-checkboxgroup__label-container cmp-adaptiveform-radiobutton__label-container">
+        <div data-sly-call="${label.label @ componentId=widgetId, labelValue=checkboxgroup.label.value, labelVisible=checkboxgroup.label.visible, labelRichText=checkboxgroup.label.richText, bemBlock='cmp-adaptiveform-checkboxgroup'}" data-sly-unwrap></div>
+        <div data-sly-call="${questionmark.questionMark @ componentId=checkboxgroup.id, longDescription=checkboxgroup.description, bemBlock='cmp-adaptiveform-checkboxgroup'}" data-sly-unwrap></div>
+    </div>
+    <div class="cmp-adaptiveform-checkboxgroup__widget cmp-adaptiveform-radiobutton__widget ${checkboxgroup.orientation}" id="${widgetId}" role="group">
+        <div data-sly-list="${checkboxgroup.enums}" data-sly-unwrap>
+            <div class="cmp-adaptiveform-checkboxgroup-item cmp-adaptiveform-radiobutton__option ${checkboxgroup.name}">
+                <label class="cmp-adaptiveform-checkboxgroup__option-label cmp-adaptiveform-radiobutton__option-label"
+                       title="${checkboxgroup.tooltipVisible ? '' : checkboxgroup.tooltipText}">
+                    <input class="cmp-adaptiveform-checkboxgroup__option__widget cmp-adaptiveform-radiobutton__option__widget"
+                           type="checkbox"
+                           name="${checkboxgroup.name}"
+                           value="${checkboxgroup.enums[itemList.index].toString}"
+                           checked="${checkboxgroup.enums[itemList.index] in checkboxgroup.default}"
+                           disabled="${!checkboxgroup.enabled || checkboxgroup.readOnly}"
+                           aria-readonly="${checkboxgroup.readOnly ? 'true' : ''}"
+                           aria-label="${checkboxgroup.optionScreenReaderLabels[itemList.index]}"
+                           aria-checked="${checkboxgroup.enums[itemList.index] in checkboxgroup.default ? 'true' : 'false'}"
+                           tabindex="0"/>
+                    <sly data-sly-call="${optioncontent @ text=checkboxgroup.enumNames[itemList.index], icon=variantConfig.icons[itemList.index], iconIsImage=variantConfig.iconIsImage[itemList.index], variant=variantConfig.variant}"></sly>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div data-sly-call="${shortdescription.shortDescription @ componentId=checkboxgroup.id, shortDescriptionVisible=checkboxgroup.tooltipVisible, shortDescription=checkboxgroup.tooltip, bemBlock='cmp-adaptiveform-checkboxgroup'}" data-sly-unwrap></div>
+    <div data-sly-call="${longdescription.longDescription @ componentId=checkboxgroup.id, longDescription=checkboxgroup.description, bemBlock='cmp-adaptiveform-checkboxgroup'}" data-sly-unwrap></div>
+    <div data-sly-call="${errormessage.errorMessage @ componentId=checkboxgroup.id, bemBlock='cmp-adaptiveform-checkboxgroup'}" data-sly-unwrap></div>
+</div>
+<div data-sly-test="${!variantConfig.isMulti}"
+     data-sly-use.formstructparser="com.adobe.cq.forms.core.components.models.form.FormStructureParser"
+     data-sly-use.radioButton="com.adobe.cq.forms.core.components.models.form.RadioButton"
+     class="cmp-adaptiveform-radiobutton${variantConfig.variantClass}"
+     data-cmp-is="adaptiveFormRadioButton"
+     data-cmp-visible="${radioButton.visible ? 'true' : 'false'}"
+     data-cmp-enabled="${radioButton.enabled ? 'true' : 'false'}"
+     data-cmp-required="${radioButton.required ? 'true': 'false'}"
+     data-cmp-readonly="${radioButton.readOnly ? 'true' : 'false'}"
+     data-name="${radioButton.name}"
+     id="${radioButton.id}"
+     data-cmp-data-layer="${radioButton.data.json}"
+     data-cmp-adaptiveformcontainer-path="${formstructparser.formContainerPath}"
+     data-sly-test.widgetId="${'{0}-{1}' @ format=[radioButton.id, 'widget']}">
+    <div class="cmp-adaptiveform-radiobutton__label-container">
+        <div data-sly-call="${label.label @ componentId=widgetId, labelValue=radioButton.label.value, labelVisible=radioButton.label.visible, labelRichText=radioButton.label.richText, bemBlock='cmp-adaptiveform-radiobutton'}" data-sly-unwrap></div>
+        <div data-sly-call="${questionmark.questionMark @ componentId=radioButton.id, longDescription=radioButton.description, bemBlock='cmp-adaptiveform-radiobutton'}" data-sly-unwrap></div>
+    </div>
+    <div class="cmp-adaptiveform-radiobutton__widget ${radioButton.orientation}" id="${widgetId}" role="radiogroup">
+        <div data-sly-list="${radioButton.enums}" data-sly-unwrap>
+            <div class="cmp-adaptiveform-radiobutton__option">
+                <label class="cmp-adaptiveform-radiobutton__option-label"
+                       title="${radioButton.tooltipVisible ? '' : radioButton.tooltipText}">
+                    <input type="radio"
+                           name="${radioButton.name}"
+                           class="cmp-adaptiveform-radiobutton__option__widget"
+                           value="${item.toString}"
+                           disabled="${!radioButton.enabled || radioButton.readOnly}"
+                           checked="${radioButton.enums[itemList.index] == radioButton.default[0]}"
+                           aria-readonly="${radioButton.readOnly ? 'true' : ''}"
+                           aria-label="${radioButton.optionScreenReaderLabels[itemList.index]}"
+                           aria-checked="${radioButton.enums[itemList.index] == radioButton.default[0] ? 'true' : 'false'}"
+                           tabindex="0"/>
+                    <sly data-sly-call="${optioncontent @ text=radioButton.enumNames[itemList.index], icon=variantConfig.icons[itemList.index], iconIsImage=variantConfig.iconIsImage[itemList.index], variant=variantConfig.variant}"></sly>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div data-sly-call="${shortdescription.shortDescription @ componentId=radioButton.id, shortDescriptionVisible=radioButton.tooltipVisible, shortDescription=radioButton.tooltip, bemBlock='cmp-adaptiveform-radiobutton'}" data-sly-unwrap></div>
+    <div data-sly-call="${longdescription.longDescription @ componentId=radioButton.id, longDescription=radioButton.description, bemBlock='cmp-adaptiveform-radiobutton'}" data-sly-unwrap></div>
+    <div data-sly-call="${errormessage.errorMessage @ componentId=radioButton.id, bemBlock='cmp-adaptiveform-radiobutton'}" data-sly-unwrap></div>
+</div>

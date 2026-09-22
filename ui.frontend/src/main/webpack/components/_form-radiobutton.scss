@@ -1,0 +1,111 @@
+.cmp-adaptiveform-radiobutton--standard,
+.cmp-adaptiveform-radiobutton--cardicon {
+    .cmp-adaptiveform-radiobutton__option,
+    .cmp-adaptiveform-checkboxgroup-item {
+        margin-bottom: 0.75rem;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-label,
+    .cmp-adaptiveform-checkboxgroup__option-label {
+        display: block;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .cmp-adaptiveform-radiobutton__option__widget,
+    .cmp-adaptiveform-checkboxgroup__option__widget {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .cmp-adaptiveform-radiobutton__option__widget:focus + .cmp-adaptiveform-radiobutton__option-content,
+    .cmp-adaptiveform-checkboxgroup__option__widget:focus + .cmp-adaptiveform-radiobutton__option-content {
+        outline: 2px solid #1473e6;
+        outline-offset: 2px;
+    }
+
+    .cmp-adaptiveform-radiobutton__option__widget:checked + .cmp-adaptiveform-radiobutton__option-content,
+    .cmp-adaptiveform-checkboxgroup__option__widget:checked + .cmp-adaptiveform-radiobutton__option-content {
+        border-color: #1473e6;
+        box-shadow: inset 0 0 0 1px #1473e6;
+        background: #f5f9ff;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-label-text {
+        display: block;
+        color: #2c2c2c;
+        font-weight: 500;
+    }
+}
+
+.cmp-adaptiveform-radiobutton--standard {
+    .cmp-adaptiveform-radiobutton__widget,
+    .cmp-adaptiveform-checkboxgroup__widget {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-content {
+        display: block;
+        border: 1px solid #d5d9e0;
+        border-radius: 0.75rem;
+        background: #fff;
+        padding: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+}
+
+.cmp-adaptiveform-radiobutton--cardicon {
+    .cmp-adaptiveform-radiobutton__widget,
+    .cmp-adaptiveform-checkboxgroup__widget {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    }
+
+    .cmp-adaptiveform-radiobutton__option,
+    .cmp-adaptiveform-checkboxgroup-item {
+        margin-bottom: 0;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        min-height: 100%;
+        padding: 1.25rem 1rem;
+        border: 1px solid #d5d9e0;
+        border-radius: 1rem;
+        background: #fff;
+        text-align: center;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-icon,
+    .cmp-adaptiveform-radiobutton__option-icon-image {
+        width: 3rem;
+        height: 3rem;
+        flex: 0 0 auto;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    .cmp-adaptiveform-radiobutton__option-icon-image {
+        display: block;
+        object-fit: contain;
+    }
+}

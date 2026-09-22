@@ -13,6 +13,7 @@
       'core/fd/components/form/phoneinputv2/v1/phoneinputv2',
       'core/fd/components/form/checkbox/v1/checkbox',
       'core/fd/components/form/radiobutton/v1/radiobutton',
+       'test/components/form/radiobutton',
       'core/fd/components/form/datepicker/v1/datepicker',
       'core/fd/components/form/fileupload/v1/fileupload',
       'core/fd/components/form/textfield/v1/textfield',
