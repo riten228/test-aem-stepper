@@ -7,6 +7,6 @@
     sling:resourceType="wcm/core/components/policy/policy"
     jcr:title="Adaptive Form Stepper Step"
     jcr:description="Allows adaptive form fields and reusable fragments inside each wizard step panel."
-    components="[core/fd/components/form/textinput/v1/textinput,core/fd/components/form/emailinput/v1/emailinput,core/fd/components/form/checkbox/v1/checkbox,core/fd/components/form/radiobutton/v1/radiobutton,core/fd/components/form/datepicker/v1/datepicker,core/fd/components/form/fileupload/v1/fileupload,core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/formfragment/v1/formfragment,core/fd/components/form/button/v1/button]">
+    components="[core/fd/components/form/textinput/v1/textinput,core/fd/components/form/emailinput/v1/emailinput,core/fd/components/form/checkbox/v1/checkbox,core/fd/components/form/radiobutton/v1/radiobutton,test/components/form/radiobutton,core/fd/components/form/datepicker/v1/datepicker,core/fd/components/form/fileupload/v1/fileupload,core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/formfragment/v1/formfragment,core/fd/components/form/button/v1/button]">
     <jcr:content jcr:primaryType="nt:unstructured"/>
 </jcr:root>

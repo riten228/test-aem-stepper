@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="nt:unstructured"
+          jcr:title="Adaptive Form Radio Button field"
+          sling:resourceType="cq/gui/components/authoring/dialog"
+          extraClientlibs="[test.forms.components.radiobutton.editor]"
+          helpPath="https://www.adobe.com/go/aem_af_cmp_radiobutton_v1"
+          trackingFeature="core-components:adaptiveform-radiobutton:v1">
+    <content jcr:primaryType="nt:unstructured"
+             granite:class="cmp-adaptiveform-radiobutton__editdialog cmp-adaptiveform-base__editdialogbasic"
+             sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs jcr:primaryType="nt:unstructured"
+                  sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                  maximized="{Boolean}true">
+                <items jcr:primaryType="nt:unstructured">
+                    <basic jcr:primaryType="nt:unstructured"
+                           jcr:title="Basic"
+                           sling:resourceType="granite/ui/components/coral/foundation/container"
+                           active="{Boolean}true"
+                           selected="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <columns
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                    margin="{Boolean}true">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <column
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <placeholder jcr:primaryType="nt:unstructured"
+                                                         sling:hideResource="{Boolean}true"/>
+                                            <selectionMode jcr:primaryType="nt:unstructured"
+                                                           sling:orderBefore="visible"
+                                                           sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                           granite:class="cmp-adaptiveform-radiobutton__selectionmode"
+                                                           fieldLabel="Selection mode"
+                                                           fieldDescription="Choose whether authors can select one or many options."
+                                                           name="./selectionMode"
+                                                           value="single">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <single jcr:primaryType="nt:unstructured" text="Single choice" value="single"/>
+                                                    <multi jcr:primaryType="nt:unstructured" text="Multiple choice" value="multi"/>
+                                                </items>
+                                            </selectionMode>
+                                            <variant jcr:primaryType="nt:unstructured"
+                                                     sling:orderBefore="visible"
+                                                     sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                     granite:class="cmp-adaptiveform-radiobutton__variant"
+                                                     fieldLabel="Rendering variant"
+                                                     fieldDescription="Controls only the presentation of the same underlying option data."
+                                                     name="./variant"
+                                                     value="default">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <default jcr:primaryType="nt:unstructured" text="Default" value="default"/>
+                                                    <standard jcr:primaryType="nt:unstructured" text="Standard" value="standard"/>
+                                                    <cardicon jcr:primaryType="nt:unstructured" text="Card with Icon" value="cardicon"/>
+                                                </items>
+                                            </variant>
+                                            <typeSingle jcr:primaryType="nt:unstructured"
+                                                        sling:orderBefore="visible"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                        granite:class="cmp-adaptiveform-radiobutton__type cmp-adaptiveform-radiobutton__type--single"
+                                                        wrapperClass="cmp-adaptiveform-radiobutton__typefield cmp-adaptiveform-radiobutton__typefield--single"
+                                                        fieldLabel="Data type of submitted value"
+                                                        required="{Boolean}true"
+                                                        name="./type"
+                                                        key="String"
+                                                        value="string">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <string jcr:primaryType="nt:unstructured" text="String" value="string"/>
+                                                    <boolean jcr:primaryType="nt:unstructured" text="Boolean" value="boolean"/>
+                                                    <number jcr:primaryType="nt:unstructured" text="Number" value="number"/>
+                                                </items>
+                                            </typeSingle>
+                                            <typeMulti jcr:primaryType="nt:unstructured"
+                                                       sling:orderBefore="visible"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                       granite:class="cmp-adaptiveform-radiobutton__type cmp-adaptiveform-radiobutton__type--multi"
+                                                       wrapperClass="cmp-adaptiveform-radiobutton__typefield cmp-adaptiveform-radiobutton__typefield--multi"
+                                                       fieldLabel="Data type of submitted value"
+                                                       required="{Boolean}true"
+                                                       name="./type"
+                                                       key="String"
+                                                       value="string[]">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <string jcr:primaryType="nt:unstructured" text="String" value="string[]"/>
+                                                    <boolean jcr:primaryType="nt:unstructured" text="Boolean" value="boolean[]"/>
+                                                    <number jcr:primaryType="nt:unstructured" text="Number" value="number[]"/>
+                                                </items>
+                                            </typeMulti>
+                                            <valueSingle jcr:primaryType="nt:unstructured"
+                                                         sling:orderBefore="visible"
+                                                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                         granite:class="cmp-adaptiveform-radiobutton__value cmp-adaptiveform-radiobutton__value--single"
+                                                         wrapperClass="cmp-adaptiveform-radiobutton__defaultvalue cmp-adaptiveform-radiobutton__defaultvalue--single"
+                                                         fieldLabel="Default option"
+                                                         fieldDescription="Preselect the matching option on form load."
+                                                         name="./default"/>
+                                            <valueMulti jcr:primaryType="nt:unstructured"
+                                                        sling:orderBefore="visible"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                        wrapperClass="cmp-adaptiveform-radiobutton__defaultvalue cmp-adaptiveform-radiobutton__defaultvalue--multi"
+                                                        fieldDescription="All the specified default options are preselected on form load."
+                                                        fieldLabel="Default options">
+                                                <field jcr:primaryType="nt:unstructured"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                       name="./default"
+                                                       required="{Boolean}false"/>
+                                            </valueMulti>
+                                            <enums jcr:primaryType="nt:unstructured"
+                                                   sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                   sling:hideResource="{Boolean}false">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <areOptionsRichText
+                                                            jcr:primaryType="nt:unstructured"
+                                                            granite:class="cmp-adaptiveform-base__areOptionsRichText"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                                            name="./areOptionsRichText"
+                                                            text="Allow Rich Text for Options"
+                                                            value="true"/>
+                                                    <enumOptions jcr:primaryType="nt:unstructured"
+                                                                 sling:orderBefore="bindref"
+                                                                 sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                                 fieldDescription="Provide the pair of enum (data value) and enumName (display text) for each option."
+                                                                 fieldLabel="Options">
+                                                        <field jcr:primaryType="nt:unstructured"
+                                                               sling:resourceType="granite/ui/components/coral/foundation/container"
+                                                               name="./enum">
+                                                            <items jcr:primaryType="nt:unstructured">
+                                                                <enum jcr:primaryType="nt:unstructured"
+                                                                      sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                      granite:class="cmp-adaptiveform-base__enum"
+                                                                      name="./enum"
+                                                                      fieldLabel="Data value"
+                                                                      fieldDescription="Specify the content to submit, when the option is selected."
+                                                                      required="{Boolean}true"/>
+                                                                <enumNames jcr:primaryType="nt:unstructured"
+                                                                           sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                           granite:class="cmp-adaptiveform-base__enumNames"
+                                                                           name="./enumNames"
+                                                                           fieldLabel="Display text"
+                                                                           fieldDescription="Specify the content to display in the adaptive form."
+                                                                           required="{Boolean}false"/>
+                                                                <richTextEnumNames jcr:primaryType="nt:unstructured"
+                                                                                   sling:resourceType="cq/gui/components/authoring/dialog/richtext"
+                                                                                   wrapperClass="cmp-adaptiveform-base__richTextEnumNames"
+                                                                                   name="richTextEnumNames"
+                                                                                   fieldLabel="Display text"
+                                                                                   fieldDescription="Specify the content to display in the adaptive form."
+                                                                                   useFixedInlineToolbar="{Boolean}true">
+                                                                    <rtePlugins jcr:primaryType="nt:unstructured">
+                                                                        <links jcr:primaryType="nt:unstructured">
+                                                                            <linkDialogConfig jcr:primaryType="nt:unstructured"
+                                                                                              height="{Long}316">
+                                                                                <linkAttributes jcr:primaryType="cq:WidgetCollection">
+                                                                                    <linkAdvanced jcr:primaryType="cq:Widget"
+                                                                                                  collapsed="{Boolean}true"
+                                                                                                  collapsible="{Boolean}true"
+                                                                                                  inputValue="advanced"
+                                                                                                  name="./linkdialog/cq:dialogCategory"
+                                                                                                  title="Advanced">
+                                                                                        <items jcr:primaryType="cq:WidgetCollection">
+                                                                                            <linkRel jcr:primaryType="nt:unstructured"
+                                                                                                     attribute="rel"
+                                                                                                     fieldDescription="Specifies the relationship between the current page and the linked page"
+                                                                                                     fieldLabel="Relationship"
+                                                                                                     name="./linkdialog/cq:linkConfig/rel"
+                                                                                                     xtype="textfield"/>
+                                                                                            <linkTitle jcr:primaryType="nt:unstructured"
+                                                                                                       attribute="title"
+                                                                                                       fieldDescription="Enter additional information about the linked page"
+                                                                                                       fieldLabel="Title"
+                                                                                                       name="./linkdialog/cq:linkConfig/title"
+                                                                                                       xtype="textfield"/>
+                                                                                        </items>
+                                                                                    </linkAdvanced>
+                                                                                    <linkTarget jcr:primaryType="cq:Widget"
+                                                                                                fieldDescription="Specifies where to open the link"
+                                                                                                fieldLabel="Open in"
+                                                                                                inputValue="target"
+                                                                                                name="./linkdialog/cq:dialogCategory"
+                                                                                                title="Target"
+                                                                                                type="radio"
+                                                                                                xtype="selection">
+                                                                                        <options jcr:primaryType="cq:WidgetCollection">
+                                                                                            <self jcr:primaryType="nt:unstructured"
+                                                                                                  text="Same Tab"
+                                                                                                  value="_self"/>
+                                                                                            <blank jcr:primaryType="nt:unstructured"
+                                                                                                   text="New Tab"
+                                                                                                   value="_blank"/>
+                                                                                            <parent jcr:primaryType="nt:unstructured"
+                                                                                                    text="Parent Frame"
+                                                                                                    value="_parent"/>
+                                                                                            <top jcr:primaryType="nt:unstructured"
+                                                                                                 text="Top Frame"
+                                                                                                 value="_top"/>
+                                                                                        </options>
+                                                                                    </linkTarget>
+                                                                                    <linkTracking jcr:primaryType="cq:Widget"
+                                                                                                  collapsed="{Boolean}true"
+                                                                                                  collapsible="{Boolean}true"
+                                                                                                  inputValue="tracking"
+                                                                                                  name="./linkdialog/cq:dialogCategory"
+                                                                                                  title="Tracking">
+                                                                                        <items jcr:primaryType="cq:WidgetCollection">
+                                                                                            <enable jcr:primaryType="nt:unstructured"
+                                                                                                    attribute="enabletracking"
+                                                                                                    fieldDescription="override analytics framework settings."
+                                                                                                    fieldLabel="Custom link tracking"
+                                                                                                    name="./linkdialog/cq:adhocLinkTrackingEnableTracking"
+                                                                                                    xtype="checkbox">
+                                                                                                <listeners jcr:primaryType="nt:unstructured"
+                                                                                                           check="function(component){var dlg=component.findParentByType('rtelinkdialog');dlg.enableSCFields(component.checked);}"/>
+                                                                                            </enable>
+                                                                                            <events jcr:primaryType="nt:unstructured"
+                                                                                                    attribute="adhocevents"
+                                                                                                    fieldDescription="e.g.: event2, event7."
+                                                                                                    fieldLabel="Include SiteCatalyst events"
+                                                                                                    name="./linkdialog/cq:adhocLinkTrackingEvents"
+                                                                                                    xtype="textfield"/>
+                                                                                            <evars jcr:primaryType="nt:unstructured"
+                                                                                                   attribute="adhocevars"
+                                                                                                   fieldDescription="e.g.: eVar1: pagedata.url, prop4: 'const'."
+                                                                                                   fieldLabel="Include SiteCatalyst variables"
+                                                                                                   name="./linkdialog/cq:adhocLinkTrackingEvars"
+                                                                                                   xtype="textfield"/>
+                                                                                        </items>
+                                                                                    </linkTracking>
+                                                                                </linkAttributes>
+                                                                            </linkDialogConfig>
+                                                                        </links>
+                                                                        <misctools jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <edit jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <findreplace jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <format jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <undo jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <subsuperscript jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <lists jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <justify jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <paraformat jcr:primaryType="nt:unstructured" features="*"/>
+                                                                        <fullscreen jcr:primaryType="nt:unstructured" features="*"/>
+                                                                    </rtePlugins>
+                                                                    <uiSettings jcr:primaryType="nt:unstructured">
+                                                                        <cui jcr:primaryType="nt:unstructured">
+                                                                            <inline jcr:primaryType="nt:unstructured"
+                                                                                    toolbar="[#format,-,#justify,fullscreen#start]">
+                                                                                <popovers jcr:primaryType="nt:unstructured">
+                                                                                    <justify jcr:primaryType="nt:unstructured"
+                                                                                             items="[justify#justifyleft,justify#justifycenter,justify#justifyright]"
+                                                                                             ref="justify"/>
+                                                                                    <lists jcr:primaryType="nt:unstructured"
+                                                                                           items="[lists#unordered,lists#ordered,lists#outdent,lists#indent]"
+                                                                                           ref="lists"/>
+                                                                                    <format jcr:primaryType="nt:unstructured"
+                                                                                            items="[format#bold,format#italic,format#underline]"
+                                                                                            ref="format"/>
+                                                                                </popovers>
+                                                                            </inline>
+                                                                            <fullscreen jcr:primaryType="nt:unstructured"
+                                                                                        toolbar="[format#bold,format#italic,format#underline,subsuperscript#subscript,subsuperscript#superscript,justify#justifyleft,justify#justifycenter,justify#justifyright,lists#unordered,lists#ordered,lists#outdent,lists#indent,undo#undo,undo#redo,edit#cut,edit#copy,edit#paste-default,edit#paste-plaintext,edit#paste-wordhtml,links#modifylink,links#unlink,links#anchor,findreplace#find,findreplace#replace,misctools#specialchars,#paraformat,fullscreen#finish]">
+                                                                                <popovers jcr:primaryType="nt:unstructured">
+                                                                                    <paraformat jcr:primaryType="nt:unstructured"
+                                                                                                items="paraformat:getFormats:paraformat-pulldown"
+                                                                                                ref="paraformat"/>
+                                                                                </popovers>
+                                                                            </fullscreen>
+                                                                        </cui>
+                                                                    </uiSettings>
+                                                                </richTextEnumNames>
+                                                                <icon jcr:primaryType="nt:unstructured"
+                                                                      sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                                      granite:class="cmp-adaptiveform-radiobutton__icon"
+                                                                      name="./icons"
+                                                                      fieldLabel="Icon"
+                                                                      fieldDescription="Optional image path or CSS class for the Card with Icon variant."
+                                                                      required="{Boolean}false"/>
+                                                            </items>
+                                                        </field>
+                                                    </enumOptions>
+                                                    <enumNames jcr:primaryType="nt:unstructured"
+                                                               sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                               granite:hidden="true">
+                                                        <field jcr:primaryType="nt:unstructured"
+                                                               sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                               name="./enumNames"
+                                                               granite:class="cmp-adaptiveform-base__enumNamesHidden"
+                                                               granite:hidden="true"/>
+                                                    </enumNames>
+                                                    <icons jcr:primaryType="nt:unstructured"
+                                                           sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                           granite:hidden="true">
+                                                        <field jcr:primaryType="nt:unstructured"
+                                                               sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                               name="./icons"
+                                                               granite:class="cmp-adaptiveform-radiobutton__iconsHidden"
+                                                               granite:hidden="true"/>
+                                                    </icons>
+                                                </items>
+                                            </enums>
+                                            <orientation jcr:primaryType="nt:unstructured"
+                                                         sling:orderBefore="visible"
+                                                         sling:resourceType="granite/ui/components/coral/foundation/form/radiogroup"
+                                                         wrapperClass="cmp-adaptiveform-radiobutton__orientation"
+                                                         fieldLabel="Display options"
+                                                         name="./orientation"
+                                                         text="Item Alignment">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <horizontal jcr:primaryType="nt:unstructured"
+                                                                sling:resourceType="granite/ui/components/coral/foundation/form/radio"
+                                                                checked="true"
+                                                                text="Horizontally"
+                                                                value="horizontal"/>
+                                                    <vertical jcr:primaryType="nt:unstructured"
+                                                              sling:resourceType="granite/ui/components/coral/foundation/form/radio"
+                                                              text="Vertically"
+                                                              value="vertical"/>
+                                                </items>
+                                            </orientation>
+                                        </items>
+                                    </column>
+                                </items>
+                            </columns>
+                        </items>
+                    </basic>
+                    <validation jcr:primaryType="nt:unstructured"
+                                jcr:title="Validation"
+                                sling:resourceType="granite/ui/components/coral/foundation/container">
+                        <items jcr:primaryType="nt:unstructured"/>
+                    </validation>
+                    <patterns jcr:primaryType="nt:unstructured"
+                              sling:hideResource="{Boolean}true"/>
+                    <help jcr:primaryType="nt:unstructured"
+                          jcr:title="Help Content"
+                          sling:resourceType="granite/ui/components/coral/foundation/container">
+                        <items jcr:primaryType="nt:unstructured"/>
+                    </help>
+                    <accessibility jcr:primaryType="nt:unstructured"
+                                   jcr:title="Accessibility"
+                                   sling:resourceType="granite/ui/components/coral/foundation/container">
+                        <items jcr:primaryType="nt:unstructured">
+                            <columns jcr:primaryType="nt:unstructured"
+                                     sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                     margin="{Boolean}true">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <column jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/container">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <assistPriority jcr:primaryType="nt:unstructured"
+                                                            sling:hideResource="{Boolean}true"/>
+                                            <assistPriorityCustom jcr:primaryType="nt:unstructured"
+                                                                  sling:orderBefore="customText"
+                                                                  sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                                                  granite:class="cmp-adaptiveform-radiobutton__assistprioritycustom"
+                                                                  fieldLabel="Text for screen readers"
+                                                                  name="./assistPriority"
+                                                                  value="">
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <empty jcr:primaryType="nt:unstructured" text="" value=""/>
+                                                    <customText jcr:primaryType="nt:unstructured" text="Custom text" value="custom"/>
+                                                    <caption jcr:primaryType="nt:unstructured" text="Title" value="label"/>
+                                                </items>
+                                            </assistPriorityCustom>
+                                            <customText jcr:primaryType="nt:unstructured"
+                                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                        wrapperClass="cmp-adaptiveform-radiobutton__customtext"
+                                                        fieldLabel="Custom text">
+                                                <granite:data jcr:primaryType="nt:unstructured"
+                                                              wrapper-class="custom-text-wrapper"/>
+                                                <field jcr:primaryType="nt:unstructured"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                       name="./custom"/>
+                                            </customText>
+                                        </items>
+                                    </column>
+                                </items>
+                            </columns>
+                        </items>
+                    </accessibility>
+                </items>
+            </tabs>
+        </items>
+    </content>
+</jcr:root>
