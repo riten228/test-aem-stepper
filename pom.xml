@@ -131,7 +131,31 @@
                     
     
     
-    <core.wcm.components.version>2.23.4</core.wcm.components.version>
+    <maven.compiler.source>21</maven.compiler.source>
+                    
+    
+    
+    <maven.compiler.target>21</maven.compiler.target>
+                    
+    
+    
+    <aem.sdk.version>2026.04.29.00-260400</aem.sdk.version>
+                    
+    
+    
+    <aem.uberjar.version>6.6.2</aem.uberjar.version>
+                    
+    
+    
+    <core.wcm.components.version>2.31.0</core.wcm.components.version>
+                    
+    
+    
+    <core.forms.components.version>1.1.79-ValidationPattern02</core.forms.components.version>
+                    
+    
+    
+    <core.forms.components.af.version>1.1.79-ValidationPattern02</core.forms.components.af.version>
                     
     
     
@@ -2431,7 +2455,7 @@ Bundle-DocURL:
                                         
         
         
-        <version>6.5.20</version>
+        <version>${aem.uberjar.version}</version>
                                         
         
         
@@ -2664,6 +2688,102 @@ Bundle-DocURL:
         
         
         <version>${core.wcm.components.version}</version>
+                                    
+      
+      
+      </dependency>
+                              
+      
+      
+      <dependency>
+                                        
+        
+        
+        <groupId>com.adobe.aem</groupId>
+                                        
+        
+        
+        <artifactId>core-forms-components-apps</artifactId>
+                                        
+        
+        
+        <version>${core.forms.components.version}</version>
+                                        
+        
+        
+        <type>zip</type>
+                                    
+      
+      
+      </dependency>
+                              
+      
+      
+      <dependency>
+                                        
+        
+        
+        <groupId>com.adobe.aem</groupId>
+                                        
+        
+        
+        <artifactId>core-forms-components-core</artifactId>
+                                        
+        
+        
+        <version>${core.forms.components.version}</version>
+                                        
+        
+        
+        <type>zip</type>
+                                    
+      
+      
+      </dependency>
+                              
+      
+      
+      <dependency>
+                                        
+        
+        
+        <groupId>com.adobe.aem</groupId>
+                                        
+        
+        
+        <artifactId>core-forms-components-af-apps</artifactId>
+                                        
+        
+        
+        <version>${core.forms.components.af.version}</version>
+                                        
+        
+        
+        <type>zip</type>
+                                    
+      
+      
+      </dependency>
+                              
+      
+      
+      <dependency>
+                                        
+        
+        
+        <groupId>com.adobe.aem</groupId>
+                                        
+        
+        
+        <artifactId>core-forms-components-af-core</artifactId>
+                                        
+        
+        
+        <version>${core.forms.components.af.version}</version>
+                                        
+        
+        
+        <type>zip</type>
                                     
       
       
