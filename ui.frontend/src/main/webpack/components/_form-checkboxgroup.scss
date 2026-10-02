@@ -46,7 +46,9 @@
 }
 
 .cmp-adaptiveform-checkboxgroup--card-tick {
-    .cmp-adaptiveform-checkboxgroup__option-label::after {
+    // all options when no tick options are configured, otherwise only flagged ones
+    &:not([data-tick-options]) .cmp-adaptiveform-checkboxgroup__option-label::after,
+    .cmp-adaptiveform-checkboxgroup__option-label.cmp-adaptiveform-checkboxgroup__option--tick::after {
         content: "";
         flex: 0 0 auto;
         width: 8px;
@@ -57,7 +59,8 @@
         transform: rotate(45deg);
     }
 
-    .cmp-adaptiveform-checkboxgroup__option-label:has(.cmp-adaptiveform-checkboxgroup__option__widget:checked)::after {
+    .cmp-adaptiveform-checkboxgroup__option-label.cmp-adaptiveform-checkboxgroup__option--tick:has(.cmp-adaptiveform-checkboxgroup__option__widget:checked)::after,
+    &:not([data-tick-options]) .cmp-adaptiveform-checkboxgroup__option-label:has(.cmp-adaptiveform-checkboxgroup__option__widget:checked)::after {
         border-color: #1a3d8f;
     }
 }
