@@ -1,0 +1,9 @@
+<sly data-sly-use.cfg="${'checkboxgroup.js'}"
+     data-sly-set.superType="${'core/fd/components/form/checkboxgroup/v1/checkboxgroup'}">
+    <div data-sly-test="${cfg.needsWrapper}"
+         class="cmp-adaptiveform-checkboxgroup-wrapper ${cfg.classes}"
+         data-selection-mode="${cfg.selectionMode}"
+         data-sly-resource="${resource @ resourceType=superType}"></div>
+    <sly data-sly-test="${!cfg.needsWrapper}"
+         data-sly-resource="${resource @ resourceType=superType}"></sly>
+</sly>
