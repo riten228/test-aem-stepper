@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+    xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Adaptive Form Vertical Stepper"
+    jcr:description="Wizard policy: step panels (and fragments) only, vertical stepper style applied by default"
+    sling:resourceType="wcm/core/components/policy/policy"
+    components="[core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/fragment/v1/fragment]"
+    cq:styleDefaultClasses="cmp-adaptiveform-wizard--vertical-stepper">
+    <cq:styleGroups jcr:primaryType="nt:unstructured">
+        <item0 jcr:primaryType="nt:unstructured" cq:styleGroupLabel="Stepper layout">
+            <cq:styles jcr:primaryType="nt:unstructured">
+                <item0
+                    jcr:primaryType="nt:unstructured"
+                    cq:styleClasses="cmp-adaptiveform-wizard--vertical-stepper"
+                    cq:styleLabel="Vertical stepper"/>
+            </cq:styles>
+        </item0>
+    </cq:styleGroups>
+</jcr:root>

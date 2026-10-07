@@ -46,3 +46,38 @@ Override `wizard-custom.css` to change left navigation layout, spacing, colors, 
 
 ## Fragment notes
 The example fragments are reusable starter structures for common sections. Copy them or reference them from the Adaptive Form Fragment component to accelerate authoring.
+
+## Vertical stepper
+
+### How it works
+The stepper is a presentation layer on top of the Core Forms wizard runtime (`core/fd/components/form/wizard/v1/wizard`). Navigation, per-step validation and runtime events are untouched; no Java was added.
+
+- `apps/test/components/forms/wizard/wizard.html` wraps the Core wizard markup (it includes the Core script via `data-sly-resource` with the Core `resourceType`) in a `div.test-wizard.cmp-adaptiveform-wizard--vertical-stepper`. The wrapper also carries the translated texts and the Submit settings as `data-test-wizard-*` attributes.
+- `clientlib-forms-wizard/js/wizard-custom.js` adds `test-adaptiveform-wizard` and the variant class to the wizard element, then keeps the stepper in sync with a `MutationObserver`: "Step X of N" (`data-step-label`), `data-step-state` (`completed`/`active`/`upcoming`), `aria-expanded`, `aria-current="step"`, `aria-disabled`, and the CSS `order` variable used by the mobile accordion.
+- `css/wizard-custom.css` contains all styling, scoped under `.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper`, and driven by CSS variables (`--test-wizard-primary: #0d2c7c`, `--test-wizard-success: #4caf50`, ...). No new files, so `css.txt`/`js.txt` are unchanged; the filevault filter already covers `/apps/test/clientlibs`, `/apps/test/components`, `/apps/test/i18n` (ui.apps) and `/conf/test` (ui.content).
+
+### Enabling it
+The variant is on by default for every wizard rendered with `test/components/forms/wizard` (including the `adaptive-form-stepper` template). The `stepper-policy` also exposes it as a style (`cmp-adaptiveform-wizard--vertical-stepper`), and any wizard with that class on itself or an ancestor gets the stepper. Wizards that don't use the proxy keep the classic layout.
+
+### Desktop vs. mobile
+- `>= 768px`: step cards in the left column, active panel in the right column with the button row (outlined Previous, filled Next/Submit). Previous is hidden on step 1 (Core sets `data-cmp-visible="false"`).
+- `< 768px` (`max-width: 767px`): `display: contents` on the tab container and CSS `order` place each tab, its panel and the button row in one column, forming an accordion. The same DOM is used on both layouts, so state is always in sync.
+- Keyboard: Enter/Space activate a tab (not for upcoming ones); Core's arrow-key handling still applies, except forward arrows which are routed through "Next" so the current step is validated.
+
+### Submit on the last step
+1. **Authored**: add the Core Forms **Button** (type = submit) in the last step panel; the step policy allows it.
+2. **Hardcoded**: in the wizard dialog (Basic tab) enable **Show submit button on last step** and optionally set **Submit button label**. The dialog is merged onto the Core wizard dialog through the component hierarchy (Sling Resource Merger). On the last step the Next button is replaced by the Submit button, which calls `guideBridge.getFormModel().dispatch(new FormView.Actions.Submit())`.
+3. No duplicate: the hardcoded button is not shown when the last step contains a `button[type="submit"]`.
+
+### i18n
+Keys "Step {0} of {1}", "Previous", "Next" and "Submit" are in `apps/test/i18n` (`fr.json`, `nl.json`).
+
+### CFC 1.1.79 wizard markup (findings)
+Source: Core Forms Components wizard v1 (HTL + `wizardview.js`); the 1.1.79 artifact is not available offline, so the upstream sources were inspected and these assumptions apply:
+- Root `div.cmp-adaptiveform-wizard[data-cmp-is="adaptiveFormWizard"]` > `.cmp-adaptiveform-wizard__widget` > `.cmp-adaptiveform-wizard__tabs-container > ol.cmp-adaptiveform-wizard__tabList > li.cmp-adaptiveform-wizard__tab[role=tab]`.
+- Panels: `.cmp-adaptiveform-wizard__wizardpanel[role=tabpanel]`; active/stepped modifiers `--active` / `--stepped` on both tab and panel.
+- Navigation: `.cmp-adaptiveform-wizard__previousNav` / `__nextNav` are empty `div`s (icon-only) toggled with `data-cmp-visible`; the JS adds their text.
+- Limitations/workarounds: the Core wizard has no "completed" class (derived from the index relative to the active tab); the nav elements are not real buttons (given `role="button"`); Core arrow-key navigation can skip validation, so forward arrows are redirected to Next; there is no `guideBridge.submit()`, so the form model `Submit` action is dispatched.
+
+### Example (matches the designs)
+Create a form from the **Adaptive Form Stepper** template and add five panels titled **Activiteit**, **Werknemers**, **Mobiliteit**, **Gebouwen en goederen**, **Gegevens**. Use Radio Button (card variant, see `radiobutton-variants.md`) / multiple-choice for options, and enable **Show submit button on last step** (or add a Submit button in **Gegevens**).
