@@ -1,3 +1,7 @@
 {
-  "&amp;copy; {0} Test Sites Project Site. All rights reserved." : "&amp;copy; {0} Test Sites Project Site. Tous droits réservés."
+  "&amp;copy; {0} Test Sites Project Site. All rights reserved.": "&amp;copy; {0} Test Sites Project Site. Tous droits réservés.",
+  "Step {0} of {1}": "Étape {0} sur {1}",
+  "Previous": "Précédent",
+  "Next": "Suivant",
+  "Submit": "Envoyer"
 }
