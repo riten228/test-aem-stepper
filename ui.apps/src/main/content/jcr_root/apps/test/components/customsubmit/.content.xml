@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          jcr:description="DVV - Custom Submit to REST endpoint (AEM Campaign and Core Components)"
+          jcr:title="DVV - Custom Rest Endpoint Submit"
+          jcr:primaryType="cq:Component"
+          sling:resourceSuperType="core/fd/components/form/actions/submit/v1/submit"
+          guideComponentType="fd/af/components/guidesubmittype"
+          guideDataModel="basic,xfa,xsd"/>

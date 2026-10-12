@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="nt:unstructured"
+          jcr:title="Edit custom rest submit"
+          sling:resourceType="cq/gui/components/authoring/dialog"
+          extraClientlibs="[af.authoring.dialog]">
+  <content
+    jcr:primaryType="nt:unstructured"
+    sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns">
+    <items jcr:primaryType="nt:unstructured">
+      <column
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+
+          <flowID
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+            fieldDescription="Enter the ID (name) of the flow"
+            fieldLabel="Flow ID"
+            name="./flowID"/>
+          <productId
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+            fieldDescription="Enter the ID (name) of the product"
+            fieldLabel="Product ID"
+            name="./productId"/>
+          <topicKey
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+            fieldDescription="Enter the ID (name) of the marketing topic"
+            fieldLabel="Topic Key"
+            name="./topicKey"/>
+          <utmChannel
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+            fieldDescription="Enter the UTM channel of the flow"
+            fieldLabel="UTM channel"
+            name="./utmChannel"/>
+          <thankYouPageNL
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the NL thank you page"
+            fieldLabel="Thank you page NL"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageNL"/>
+          <thankYouPageFR
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the FR thank you page"
+            fieldLabel="Thank you page FR"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageFR"/>
+          <thankYouPageNLHappy
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the NL thank you page if happy flow, by default it will use normal thank you page"
+            fieldLabel="Thank you page NL happy flow"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageNLHappy"/>
+          <thankYouPageFRHappy
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the FR thank you page if happy flow, by default it will use normal thank you page"
+            fieldLabel="Thank you page FR happy flow"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageFRHappy"/>
+          <thankYouPageNLHappyTalkAgent
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the NL thank you page if happy flow talk with agent, by default it will use normal thank you page"
+            fieldLabel="Thank you page NL happy flow talk with agent"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageNLHappyTalkAgent"/>
+          <thankYouPageFRHappyTalkAgent
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/pathbrowser"
+            fieldDescription="Enter the FR thank you page if happy flow talk with agent, by default it will use normal thank you page"
+            fieldLabel="Thank you page FR happy flow talk with agent"
+            predicate="nosystem"
+            rootPath="/content"
+            name="./thankYouPageFRHappyTalkAgent"/>
+
+          <!-- Modernized Multi-field Component Mapping -->
+          <options
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+            fieldDescription="Enter values in {Field Name}={Parameter Name} format."
+            fieldLabel="Mapping for passing field values as Thank You Page request parameters">
+            <field
+              jcr:primaryType="nt:unstructured"
+              sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+              name="./fieldParameterMapping"/>
+          </options>
+
+          <enableRestEndpointPost
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+            name="./enableRestEndpointPost"
+            text="Enable POST request"
+            value="true">
+            <granite:data
+              jcr:primaryType="nt:unstructured"
+              af.listeners.change="guidelib.touchlib.editLayer.dialogUtils.handleSubmitRESTEndpointPost();"
+              af.listeners.onload="guidelib.touchlib.editLayer.dialogUtils.handleSubmitRESTEndpointPost();"/>
+          </enableRestEndpointPost>
+          <restEndpointPostUrl
+            jcr:primaryType="nt:unstructured"
+            sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+            fieldDescription="Enter the URL of a remote server as (http://&lt;host>:&lt;port>/path/to/resource). For posting to the local AEM server that is serving the Form, enter the path to the resource."
+            fieldLabel="URL For POST request"
+            name="./restEndpointPostUrl"/>
+
+        </items>
+      </column>
+    </items>
+  </content>
+</jcr:root>
