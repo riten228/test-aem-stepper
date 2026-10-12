@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0">
+  <test.forms.wizard.copyright
+      jcr:mixinTypes="[sling:Message]"
+      jcr:primaryType="nt:folder"
+      sling:key="test.forms.wizard.copyright"
+      sling:message="&amp;copy; {0} Test Sites Project Site. Tous droits réservés."/>
+  <test.forms.wizard.step
+      jcr:mixinTypes="[sling:Message]"
+      jcr:primaryType="nt:folder"
+      sling:key="test.forms.wizard.step"
+      sling:message="Étape {0} sur {1}"/>
+  <test.forms.wizard.previous
+      jcr:mixinTypes="[sling:Message]"
+      jcr:primaryType="nt:folder"
+      sling:key="test.forms.wizard.previous"
+      sling:message="Précédent"/>
+  <test.forms.wizard.next
+      jcr:mixinTypes="[sling:Message]"
+      jcr:primaryType="nt:folder"
+      sling:key="test.forms.wizard.next"
+      sling:message="Suivant"/>
+  <test.forms.wizard.submit
+      jcr:mixinTypes="[sling:Message]"
+      jcr:primaryType="nt:folder"
+      sling:key="test.forms.wizard.submit"
+      sling:message="Envoyer"/>
+</jcr:root>
