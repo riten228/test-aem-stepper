@@ -26,6 +26,10 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -55,7 +59,6 @@ import static org.osgi.framework.Constants.SERVICE_RANKING;
 public class FormsSubmitServlet extends SlingAllMethodsServlet {
     public static final String CHECK = "Check";
     public static final String SUBMIT_TYPE = "submitType";
-    private static final String CONSULTANT_KEY_PARAM = "\"consultantKey\":";
     private static final Logger LOGGER = LoggerFactory.getLogger(FormsSubmitServlet.class);
     private static final String TRANSACTION_KEY = "transactionKey";
     private static final String CONSULTANT_KEY = "consultantKey";
@@ -83,7 +86,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
     private static final String TYPE_UNSUBSCRIBE = "unsubscribe";
     private static final String TYPE_SUBMIT_CS = "submitCreditSimulator";
     private static final String ACCEPT_FROM_REASSIGNED = "reassignAcceptRequest";
-    private static final String DYNAMIC_PAGE = "\"DynamicPage\":";
+    private static final String DYNAMIC_PAGE = "DynamicPage";
     private static final String NOW = "now";
     private static final String FEEDBACK_ACCEPT = "feedback-accept";
     private static final String THANKYOU_FEEDBACK_ACCEPT = "feedback-accept";
@@ -91,26 +94,82 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
     private static final String HIDDEN_PARAMTERS = "hiddenParameters";
 
     private static final Pattern HTML_TAG = Pattern.compile("<[^>]+>");
+    private static final Pattern SAFE_VALUE = Pattern.compile("^[A-Za-z0-9_.\\-]{1,128}$");
+    private static final Pattern SAFE_LOCALE = Pattern.compile("^[A-Za-z]{2}([_-][A-Za-z]{2})?$");
+    private static final String DEFAULT_LOCALE = "nl_be";
+    private static final int CONNECTION_TIMEOUT_MS = 10000;
+    private static final int SOCKET_TIMEOUT_MS = 30000;
+    private static final Set<String> ALLOWED_TYPES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            TYPE_ACCEPT, TYPE_FEEDBACK_AFTER_ACCEPT, TYPE_FEEDBACK_ACCEPT, TYPE_NEWSLETTER_ACTIVATE, TYPE_REASSIGN,
+            TYPE_REASSIGN_REQUEST, TYPE_CLOSE, TYPE_SUBMIT, TYPE_SUBMIT_LEAD, TYPE_SUBMIT_BUSINESS, TYPE_SUBMIT_EVENT,
+            TYPE_SUBMIT_INSCRIPTION, TYPE_SUBMIT_SALE, TYPE_SUBMIT_SURVEY, TYPE_UNSUBSCRIBE, TYPE_SUBMIT_CS)));
+    private static final List<String> VALIDATED_PARAMS = Collections.unmodifiableList(Arrays.asList(
+            TRANSACTION_KEY, CONSULTANT_KEY, PRODUCTID, ACTION, CLIENT_KEY, ACCEPT_FROM_REASSIGNED));
 
 
     @Reference
     private FormsMiddlelayerConfigurationService formsMiddlelayerConfigurationService;
 
+    private static JSONObject parseHiddenParameters(String hiddenParameters) {
+        if (StringUtils.isBlank(hiddenParameters)) {
+            return new JSONObject();
+        }
+        try {
+            return new JSONObject(hiddenParameters);
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
     private static String getParam(String hiddenParameters, String paramToSearch) {
-        if (hiddenParameters.contains("{") && hiddenParameters.contains("}")) {
-            hiddenParameters = hiddenParameters.replace("{", "");
-            hiddenParameters = hiddenParameters.replace("}", "");
-            String[] assetClasses = hiddenParameters.split(",");
-            for (String parameter : assetClasses) {
-                if (parameter.contains(paramToSearch)) {
-                    parameter = parameter.replaceFirst(paramToSearch, "");
-                    parameter = parameter.substring(1, parameter.length() - 1);
-                    LOGGER.debug("Parameter from hidden {}", parameter);
-                    return parameter;
-                }
-            }
+        JSONObject json = parseHiddenParameters(hiddenParameters);
+        if (json != null && json.has(paramToSearch) && !json.isNull(paramToSearch)) {
+            String value = json.optString(paramToSearch, null);
+            LOGGER.debug("Parameter from hidden {}", sanitizeForLog(value));
+            return value;
         }
         return null;
+    }
+
+    private static String sanitizeForLog(String value) {
+        return value == null ? null : value.replaceAll("[\\r\\n\\t]", "_");
+    }
+
+    private static boolean isSafeValue(String value) {
+        return value != null && SAFE_VALUE.matcher(value).matches();
+    }
+
+    /** Only absolute http(s) endpoints without user info are allowed; endpoints come from configuration only. */
+    private static boolean isValidEndpoint(String endPoint) {
+        try {
+            URI uri = new URI(endPoint);
+            String scheme = uri.getScheme();
+            return ("https".equalsIgnoreCase(scheme) || "http".equalsIgnoreCase(scheme))
+                    && StringUtils.isNotBlank(uri.getHost()) && uri.getUserInfo() == null;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
+    /** Only existing internal content pages are accepted as redirect targets. */
+    private static boolean isSafePagePath(SlingHttpServletRequest request, String path) {
+        if (path == null || !path.startsWith("/content/") || path.contains("..") || path.contains("//")
+                || path.contains("\\") || path.contains("?") || path.contains("#") || path.chars().anyMatch(Character::isISOControl)) {
+            return false;
+        }
+        PageManager pageManager = request.getResourceResolver().adaptTo(PageManager.class);
+        return pageManager != null && pageManager.getPage(path) != null;
+    }
+
+    private String resolveResultPage(SlingHttpServletRequest request, String paramName, String lang, String type) {
+        String requested = request.getParameter(paramName);
+        if (StringUtils.isNotEmpty(requested)) {
+            if (isSafePagePath(request, requested)) {
+                return requested;
+            }
+            LOGGER.warn("Ignoring unsafe page path for {}", sanitizeForLog(paramName));
+        }
+        return MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
     }
 
     @Override
@@ -126,12 +185,44 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
     private void process(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         String endPoint = null;
         String type = StringUtils.isNotEmpty(request.getParameter(TYPE)) ? request.getParameter(TYPE) : StringUtils.EMPTY;
-        String locale = StringUtils.isNotEmpty(request.getParameter(LANG)) ? request.getParameter(LANG) : "nl_be";
+        String locale = StringUtils.isNotEmpty(request.getParameter(LANG)) ? request.getParameter(LANG) : DEFAULT_LOCALE;
+        boolean validLocale = SAFE_LOCALE.matcher(locale).matches();
+        if (!validLocale) {
+            locale = DEFAULT_LOCALE;
+        }
         String lang = locale.length() > 2 ? locale.substring(0, 2) : StringUtils.EMPTY;
         String hiddenParameters = StringUtils.isNotEmpty(request.getParameter(Constants.HIDDEN_PARAMETERS)) ? request.getParameter(Constants.HIDDEN_PARAMETERS) : StringUtils.EMPTY;
         String generalErrorPage = MessageFormat.format(formsMiddlelayerConfigurationService.getErrorPagePath(), lang);
+        if (!validLocale) {
+            LOGGER.warn("Forms action servlet - invalid lang parameter, redirecting to error page");
+            response.sendRedirect(generalErrorPage);
+            return;
+        }
         if (StringUtils.isNotBlank(type) && type.equalsIgnoreCase(TYPE_SUBMIT_LEAD_CHECK)) {
             type = setSubmitType(hiddenParameters, type);
+        }
+        if (!ALLOWED_TYPES.contains(type)) {
+            LOGGER.warn("Forms action servlet - unexpected type {}, redirecting to error page", sanitizeForLog(type));
+            setResponseUrl(request, response, generalErrorPage, StringUtils.EMPTY, generalErrorPage, false);
+            return;
+        }
+
+        Map<String, String> safeParams = new HashMap<>();
+        for (String name : VALIDATED_PARAMS) {
+            String value = request.getParameter(name);
+            if (value != null) {
+                if (!isSafeValue(value)) {
+                    LOGGER.warn("Forms action servlet - invalid value for parameter {}, redirecting to error page", name);
+                    setResponseUrl(request, response, generalErrorPage, StringUtils.EMPTY, generalErrorPage, false);
+                    return;
+                }
+                safeParams.put(name, value);
+            }
+        }
+        if (StringUtils.isNotBlank(hiddenParameters) && parseHiddenParameters(hiddenParameters) == null) {
+            LOGGER.warn("Forms action servlet - hiddenParameters is not valid JSON, redirecting to error page");
+            setResponseUrl(request, response, generalErrorPage, StringUtils.EMPTY, generalErrorPage, false);
+            return;
         }
 
         String jcrData = request.getParameter(GuideConstants.JCR_DATA);
@@ -145,7 +236,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 String fieldValue = entry.getValue();
 
                 if (StringUtils.isNotBlank(fieldValue) && HTML_TAG.matcher(fieldValue).find()) {
-                    LOGGER.warn("HTML detected in field {} with value {} → blocking submit", fieldName, fieldValue);
+                    LOGGER.warn("HTML detected in field {} → blocking submit", sanitizeForLog(fieldName));
                     String errorPage = MessageFormat.format(formsMiddlelayerConfigurationService.getErrorPagePath(), lang);
                     response.sendRedirect(errorPage);
                     return; // STOP submit
@@ -162,7 +253,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 String value = entry.getValue();
 
                 if (value != null && HTML_TAG.matcher(value).find()) {
-                    LOGGER.warn("HTML detected in hiddenParameters {} with value {} → blocking submit", key, value);
+                    LOGGER.warn("HTML detected in hiddenParameters {} → blocking submit", sanitizeForLog(key));
                     String errorPage = MessageFormat.format(formsMiddlelayerConfigurationService.getErrorPagePath(), lang);
                     response.sendRedirect(errorPage);
                     return; // STOP submit
@@ -174,9 +265,9 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
         LOGGER.debug("type: {}", type);
         LOGGER.debug("locale: {}", locale);
         LOGGER.debug("lang: {}", lang);
-        LOGGER.debug("hiddenParameters: {}", hiddenParameters);
+        LOGGER.debug("hiddenParameters: {}", sanitizeForLog(hiddenParameters));
         LOGGER.debug("generalErrorPage: {}", generalErrorPage);
-        LOGGER.info("Forms action servlet - incoming {} request", type);
+        LOGGER.info("Forms action servlet - incoming {} request", sanitizeForLog(type));
 
         Map<String, String> formData = new HashMap<>();
         Map<String, String> additionalData = new HashMap<>();
@@ -187,10 +278,12 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
             case TYPE_FEEDBACK_ACCEPT:
                 if (StringUtils.isEmpty(request.getParameter(Constants.REQUEST_FROM_POST_JSP))) {
                     endPoint = formsMiddlelayerConfigurationService.getLeadsForConsultantPath();
-                    if (request.getParameter(CONSULTANT_KEY) != null) {
-                        additionalData.put(CONSULTANT_KEY, request.getParameter(CONSULTANT_KEY));
+                    if (safeParams.get(CONSULTANT_KEY) != null) {
+                        additionalData.put(CONSULTANT_KEY, safeParams.get(CONSULTANT_KEY));
                     }
-                    urlParams.add(new NameValuePair(CONSULTANT_KEY, request.getParameter(CONSULTANT_KEY)));
+                    if (safeParams.get(CONSULTANT_KEY) != null) {
+                        urlParams.add(new NameValuePair(CONSULTANT_KEY, safeParams.get(CONSULTANT_KEY)));
+                    }
                     type = TYPE_FEEDBACK_ACCEPT + CHECK;
                     LOGGER.debug("Type check leads for consultant  {}", type);
                 } else {
@@ -199,9 +292,9 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                     formData.put(GuideConstants.JCR_DATA, request.getParameter(GuideConstants.JCR_DATA));
                     additionalData.put(Constants.HIDDEN_PARAMETERS, hiddenParameters);
                     endPoint = formsMiddlelayerConfigurationService.getSubmitLeadFeedbackPath();
-                    String key = getParam(hiddenParameters, CONSULTANT_KEY_PARAM);
+                    String key = getParam(hiddenParameters, CONSULTANT_KEY);
                     LOGGER.debug("adding parameter for url {}", key);
-                    if (StringUtils.isNotBlank(key)) {
+                    if (isSafeValue(key)) {
                         urlParams.add(new NameValuePair(CONSULTANT_KEY, key));
                         addUrlParam = true;
                     }
@@ -217,17 +310,18 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 break;
             case TYPE_ACCEPT:
                 endPoint = formsMiddlelayerConfigurationService.getAcceptPath();
-                additionalData.put(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY));
-                if (request.getParameter(ACCEPT_FROM_REASSIGNED) != null) {
-                    additionalData.put(ACCEPT_FROM_REASSIGNED, request.getParameter(ACCEPT_FROM_REASSIGNED));
+                additionalData.put(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY));
+                if (safeParams.get(ACCEPT_FROM_REASSIGNED) != null) {
+                    additionalData.put(ACCEPT_FROM_REASSIGNED, safeParams.get(ACCEPT_FROM_REASSIGNED));
                 } else {
                     additionalData.put(ACCEPT_FROM_REASSIGNED, "false");
                 }
 
-                urlParams.add(new NameValuePair(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY)));
-                if (request.getParameter(PRODUCTID) != null) {
-                    additionalData.put(PRODUCTID, request.getParameter(PRODUCTID));
-                    urlParams.add(new NameValuePair(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY)));
+                if (safeParams.get(TRANSACTION_KEY) != null) {
+                    urlParams.add(new NameValuePair(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY)));
+                }
+                if (safeParams.get(PRODUCTID) != null) {
+                    additionalData.put(PRODUCTID, safeParams.get(PRODUCTID));
                 }
                 if (StringUtils.isNotEmpty(lang)) {
                     additionalData.put(LANG, lang);
@@ -238,15 +332,17 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 if (StringUtils.isEmpty(request.getParameter(Constants.REQUEST_FROM_POST_JSP))) {
                     endPoint = formsMiddlelayerConfigurationService.getCheckLeadStatusPath();
                     urlParams.add(new NameValuePair(TYPE, type));
-                    if (request.getParameter(TRANSACTION_KEY) != null) {
-                        additionalData.put(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY));
+                    if (safeParams.get(TRANSACTION_KEY) != null) {
+                        additionalData.put(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY));
                     }
-                    urlParams.add(new NameValuePair(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY)));
-                    if (request.getParameter(PRODUCTID) != null) {
-                        urlParams.add(new NameValuePair(PRODUCTID, request.getParameter(PRODUCTID)));
+                    if (safeParams.get(TRANSACTION_KEY) != null) {
+                        urlParams.add(new NameValuePair(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY)));
                     }
-                    if (request.getParameter(ACTION) != null) {
-                        urlParams.add(new NameValuePair(ACTION, request.getParameter(ACTION)));
+                    if (safeParams.get(PRODUCTID) != null) {
+                        urlParams.add(new NameValuePair(PRODUCTID, safeParams.get(PRODUCTID)));
+                    }
+                    if (safeParams.get(ACTION) != null) {
+                        urlParams.add(new NameValuePair(ACTION, safeParams.get(ACTION)));
                     }
                     if (StringUtils.isNotEmpty(lang)) {
                         urlParams.add(new NameValuePair(LANG, lang));
@@ -264,12 +360,14 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 if (StringUtils.isEmpty(request.getParameter(Constants.REQUEST_FROM_POST_JSP))) {
                     endPoint = formsMiddlelayerConfigurationService.getCheckLeadStatusPath();
                     urlParams.add(new NameValuePair(TYPE, type));
-                    urlParams.add(new NameValuePair(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY)));
-                    if (request.getParameter(PRODUCTID) != null) {
-                        urlParams.add(new NameValuePair(PRODUCTID, request.getParameter(PRODUCTID)));
+                    if (safeParams.get(TRANSACTION_KEY) != null) {
+                        urlParams.add(new NameValuePair(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY)));
                     }
-                    if (request.getParameter(ACTION) != null) {
-                        urlParams.add(new NameValuePair(ACTION, request.getParameter(ACTION)));
+                    if (safeParams.get(PRODUCTID) != null) {
+                        urlParams.add(new NameValuePair(PRODUCTID, safeParams.get(PRODUCTID)));
+                    }
+                    if (safeParams.get(ACTION) != null) {
+                        urlParams.add(new NameValuePair(ACTION, safeParams.get(ACTION)));
                     }
                     if (StringUtils.isNotEmpty(lang)) {
                         urlParams.add(new NameValuePair(LANG, lang));
@@ -277,8 +375,8 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                     type = TYPE_REASSIGN + CHECK;
                 } else {
                     endPoint = formsMiddlelayerConfigurationService.getReassignPath();
-                    if (request.getParameter(TRANSACTION_KEY) != null) {
-                        additionalData.put(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY));
+                    if (safeParams.get(TRANSACTION_KEY) != null) {
+                        additionalData.put(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY));
                     }
                     formData.put(GuideConstants.JCR_DATA, request.getParameter(GuideConstants.JCR_DATA));
                     additionalData.put(Constants.HIDDEN_PARAMETERS, hiddenParameters);
@@ -287,13 +385,13 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
 
             case TYPE_CLOSE:
                 endPoint = formsMiddlelayerConfigurationService.getClosePath();
-                additionalData.put(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY));
+                additionalData.put(TRANSACTION_KEY, safeParams.get(TRANSACTION_KEY));
                 additionalData.put(LANG, locale);
                 break;
             case TYPE_NEWSLETTER_ACTIVATE:
                 endPoint = formsMiddlelayerConfigurationService.getNewsletterAcceptPath();
                 additionalData.put(TOPIC_KEY, formsMiddlelayerConfigurationService.getNewsletterSubscribeTopicKey());
-                additionalData.put(CLIENT_KEY, request.getParameter(CLIENT_KEY));
+                additionalData.put(CLIENT_KEY, safeParams.get(CLIENT_KEY));
                 break;
             case TYPE_SUBMIT:
                 endPoint = formsMiddlelayerConfigurationService.getSubmitPath();
@@ -349,19 +447,25 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
 
         LOGGER.debug("additionalData data");
         for (String key : additionalData.keySet()) {
-            LOGGER.debug(key + ": " + additionalData.get(key));
+            LOGGER.debug("{}: {}", key, sanitizeForLog(additionalData.get(key)));
         }
 
         LOGGER.debug("formData data");
         for (String key : formData.keySet()) {
-            LOGGER.debug(key + ": " + formData.get(key));
+            LOGGER.debug("{}: {}", key, sanitizeForLog(formData.get(key)));
         }
 
         Map<String, String> requestBody = Stream.of(additionalData.entrySet(), formData.entrySet())
                 .flatMap(Set::stream)
+                .filter(entry -> entry.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         String requestBodyAsJSON = (new JSONObject(requestBody)).toString();
         LOGGER.debug("requestBodyAsJSON: {}", requestBodyAsJSON);
+
+        if (StringUtils.isNotEmpty(endPoint) && !isValidEndpoint(endPoint)) {
+            LOGGER.error("Forms action servlet - configured endpoint is not a valid http(s) URL, forwarding to generalErrorPage");
+            endPoint = null;
+        }
 
         if (StringUtils.isNotEmpty(endPoint)) {
             int returnCode;
@@ -374,7 +478,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
             if (type.contains(CHECK)) {
                 type = getTypeWithoutCheck(type, TYPE_ACCEPT);
                 type = getTypeWithoutCheck(type, TYPE_FEEDBACK_ACCEPT);
-                HttpClient httpClient = new HttpClient();
+                HttpClient httpClient = newHttpClient();
                 HttpMethod getMethod = new GetMethod(endPoint);
 
                 getMethod.setQueryString(urlParams.toArray(new NameValuePair[urlParams.size()]));
@@ -400,10 +504,12 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body");
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    getMethod.releaseConnection();
                 }
             } else {
                 // Submit Data
-                HttpClient httpClient = new HttpClient();
+                HttpClient httpClient = newHttpClient();
                 PostMethod postMethod = new PostMethod(endPoint);
                 postMethod.setRequestEntity(new StringRequestEntity(requestBodyAsJSON, "application/json", "UTF-8"));
 
@@ -440,33 +546,32 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body: {}", e.getMessage(), e);
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    postMethod.releaseConnection();
                 }
             }
 
 
             if (returnCode == HttpStatus.SC_OK) {
-                if (StringUtils.isNotEmpty(responseTransactionKey)) {
+                if (StringUtils.isNotEmpty(responseTransactionKey) && isSafeValue(responseTransactionKey)) {
                     urlParams.add(new NameValuePair(TRANSACTION_KEY, responseTransactionKey));
                     addUrlParam = true;
                 }
-                //returns from getParam. example: ":"thankyouPageHappy
                 String thankYouPage = getParam(hiddenParameters, Constants.THANKYOU_PAGE_URL);
                 if (thankYouPage != null) {
-                    thankYouPage = thankYouPage.replace("\":\"", "");
                     switch (thankYouPage) {
                         case Constants.THANKYOU_PAGE_URL_HAPPY:
-                            resultPage = StringUtils.isNotEmpty(request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY)) ? request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY) : MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
+                            resultPage = resolveResultPage(request, Constants.THANKYOU_PAGE_URL_HAPPY, lang, type);
                             break;
                         case Constants.THANKYOU_PAGE_URL_HAPPY_TALK_AGENT:
-                            resultPage = StringUtils.isNotEmpty(request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY_TALK_AGENT)) ? request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY_TALK_AGENT) : MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
+                            resultPage = resolveResultPage(request, Constants.THANKYOU_PAGE_URL_HAPPY_TALK_AGENT, lang, type);
                             break;
                         default:
-                            resultPage = StringUtils.isNotEmpty(request.getParameter(Constants.THANKYOU_PAGE_URL)) ? request.getParameter(Constants.THANKYOU_PAGE_URL) : MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
+                            resultPage = resolveResultPage(request, Constants.THANKYOU_PAGE_URL, lang, type);
                             break;
                     }
                 } else {
-                    resultPage = StringUtils.isNotEmpty(request.getParameter(Constants.THANKYOU_PAGE_URL)) ? request.getParameter(Constants.THANKYOU_PAGE_URL) : MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
-
+                    resultPage = resolveResultPage(request, Constants.THANKYOU_PAGE_URL, lang, type);
                 }
                 LOGGER.debug("Thank you page url: resultPage {}", resultPage);
 
@@ -487,7 +592,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                             resultPage = MessageFormat.format(formsMiddlelayerConfigurationService.getClosedPagePath(), lang);
                             break;
                         case Constants.NO_TICKET:
-                            resultPage = StringUtils.isNotEmpty(request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY)) ? request.getParameter(Constants.THANKYOU_PAGE_URL_HAPPY) : MessageFormat.format(formsMiddlelayerConfigurationService.getThanksPagePath(), lang, type);
+                            resultPage = resolveResultPage(request, Constants.THANKYOU_PAGE_URL_HAPPY, lang, type);
                             break;
                         default:
                             break;
@@ -508,36 +613,23 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
         }
     }
 
+    private static HttpClient newHttpClient() {
+        HttpClient httpClient = new HttpClient();
+        httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(CONNECTION_TIMEOUT_MS);
+        httpClient.getHttpConnectionManager().getParams().setSoTimeout(SOCKET_TIMEOUT_MS);
+        return httpClient;
+    }
+
     private String getTypeWithoutCheck(String type, String typeFeedbackAcceptRecap) {
         return type.equalsIgnoreCase(typeFeedbackAcceptRecap + CHECK) ? typeFeedbackAcceptRecap : type;
     }
 
     private String setAlternativeLink(String hiddenParameters, String paramToSearch, String match, String url1, String url2) {
-        String alternative;
-        LOGGER.debug("HiddenParameters from HiddenParametersString {}", hiddenParameters);
-        if (StringUtils.isNotEmpty(hiddenParameters) && hiddenParameters.contains("{") && hiddenParameters.contains("}")) {
-            hiddenParameters = hiddenParameters.replace("{", "");
-            hiddenParameters = hiddenParameters.replace("}", "");
-            LOGGER.debug("hiddenParameters removed brackets {}", hiddenParameters);
-            String[] assetClasses = hiddenParameters.split(",");
-            for (String parameter : assetClasses) {
-                LOGGER.debug("Parameter is {}", parameter);
-                if (parameter.contains(paramToSearch)) {
-                    parameter = parameter.replaceFirst(paramToSearch, "");
-                    LOGGER.debug("Parameter after replace is {}", parameter);
-                    if (StringUtils.isNotEmpty(parameter) && parameter.equalsIgnoreCase("\"" + match + "\"")) {
-                        LOGGER.debug("{} is {}", paramToSearch, url1);
-                        alternative = url1;
-                    } else {
-                        LOGGER.debug("{} is {}", paramToSearch, url2);
-                        alternative = url2;
-                    }
-                    return alternative;
-                }
-            }
-
+        String value = getParam(hiddenParameters, paramToSearch);
+        if (value == null) {
+            return null;
         }
-        return null;
+        return value.equalsIgnoreCase(match) ? url1 : url2;
     }
 
     private void setResponseUrl(SlingHttpServletRequest request, SlingHttpServletResponse response, String resultPage, String urlParams, String generalErrorPage, boolean addUrlParam) {
@@ -593,9 +685,17 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
         }
     }
 
+    private static String encode(String value) {
+        try {
+            return URLEncoder.encode(StringUtils.defaultString(value), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private String formatUrlParams(List<NameValuePair> urlParams) {
         if (!urlParams.isEmpty()) {
-            String url = urlParams.stream().map(urlParam -> "&" + urlParam.getName() + "=" + urlParam.getValue()).collect(Collectors.joining()).substring(1);
+            String url = urlParams.stream().map(urlParam -> "&" + encode(urlParam.getName()) + "=" + encode(urlParam.getValue())).collect(Collectors.joining()).substring(1);
             LOGGER.debug("urlParams formatted: {}", url);
             if (StringUtils.isNotEmpty(url)) {
                 return "?" + url;
@@ -607,27 +707,8 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
     }
 
     private String setSubmitType(String hiddenParameters, String submitType) {
-        String alternative = submitType;
-        LOGGER.debug("HiddenParameters from HiddenParametersString {}", hiddenParameters);
-        if (StringUtils.isNotEmpty(hiddenParameters) && hiddenParameters.contains("{") && hiddenParameters.contains("}")) {
-            hiddenParameters = hiddenParameters.replace("{", "");
-            hiddenParameters = hiddenParameters.replace("}", "");
-            LOGGER.debug("hiddenParameters removed brackets {}", hiddenParameters);
-            String[] assetClasses = hiddenParameters.split(",");
-            for (String parameter : assetClasses) {
-                LOGGER.debug("Parameter is {}", parameter);
-                if (parameter.contains(SUBMIT_TYPE)) {
-                    String[] semiColom = parameter.split(":");
-                    for (String cutParam : semiColom) {
-                        if (!cutParam.contains(SUBMIT_TYPE)) {
-                            alternative = cutParam.replaceAll("\"", "");
-                            LOGGER.debug("Parameter after replace is {}", alternative);
-                        }
-                    }
-                }
-            }
-        }
-        return alternative;
+        String alternative = getParam(hiddenParameters, SUBMIT_TYPE);
+        return alternative != null ? alternative : submitType;
     }
 
     private static String extractFieldValue(String xml, String fieldName) {
@@ -661,18 +742,12 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
 
     private static Map<String, String> extractJsonValues(String json) {
         Map<String, String> map = new HashMap<>();
-
-        // Matches: "key":"value"
-        Pattern p = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"([^\"]*)\"");
-        Matcher m = p.matcher(json);
-
-        while (m.find()) {
-            String key = m.group(1);
-            String value = m.group(2);
-            map.put(key, value);
+        JSONObject parsed = parseHiddenParameters(json);
+        if (parsed != null) {
+            for (String key : parsed.keySet()) {
+                map.put(key, parsed.isNull(key) ? null : parsed.get(key).toString());
+            }
         }
         return map;
     }
-
-
 }
