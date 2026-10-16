@@ -68,10 +68,11 @@
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__widget {
-    grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
+    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
     grid-template-rows: auto auto 1fr;
     column-gap: 2rem;
     row-gap: 1rem;
+    align-items: start;
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tabs-container {
@@ -127,8 +128,8 @@
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="active"] {
-    border-color: var(--test-wizard-primary);
-    background: #fff;
+    border-color: var(--test-wizard-success);
+    background: var(--test-wizard-success-bg);
     color: var(--test-wizard-text);
 }
 
@@ -150,7 +151,7 @@
     grid-column: 2;
     grid-row: 1;
     padding: 1.5rem;
-    border: 0;
+    border: 1px solid var(--test-wizard-border);
     border-radius: var(--test-wizard-radius);
     background: #fff;
     box-shadow: var(--test-wizard-shadow);
@@ -214,7 +215,9 @@
     display: none;
 }
 
-/* Mobile: accordion */
+/* Mobile: accordion. The Core DOM keeps tabs and panels in separate containers, so
+   display: contents on the containers is the only way to interleave each tab with its
+   panel; the interleaving order is written by JS (--test-wizard-order). */
 @media (max-width: 767px) {
     .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__widget {
         display: grid;
