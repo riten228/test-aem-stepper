@@ -68,9 +68,9 @@
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__widget {
-    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+    grid-template-columns: 38% minmax(0, 1fr);
     grid-template-rows: auto;
-    column-gap: 2rem;
+    column-gap: 32px;
     row-gap: 1rem;
     align-items: start;
 }
@@ -78,6 +78,7 @@
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tabs-container {
     grid-column: 1;
     grid-row: 1;
+    min-width: 0;
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tabList {
