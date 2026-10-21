@@ -1,9 +1,13 @@
+<sly data-sly-set.prevI18n="${'Previous' @ i18n}"/>
+<sly data-sly-set.nextI18n="${'Next' @ i18n}"/>
+<sly data-sly-set.prevLabel="${prevI18n != 'Previous' ? prevI18n : (properties.previousLabel || 'Previous')}"/>
+<sly data-sly-set.nextLabel="${nextI18n != 'Next' ? nextI18n : (properties.nextLabel || 'Next')}"/>
 <div class="test-wizard cmp-adaptiveform-wizard--vertical-stepper"
      data-test-wizard-submit="${properties.showSubmit ? 'true' : 'false'}"
      data-test-wizard-submit-label="${properties.submitLabel}"
      data-test-wizard-i18n-step="${'Step {0} of {1}' @ i18n}"
-     data-test-wizard-i18n-previous="${'Previous' @ i18n}"
-     data-test-wizard-i18n-next="${'Next' @ i18n}"
+     data-test-wizard-i18n-previous="${prevLabel}"
+     data-test-wizard-i18n-next="${nextLabel}"
      data-test-wizard-i18n-submit="${'Submit' @ i18n}">
     <sly data-sly-resource="${resource.path @ resourceType='core/fd/components/form/wizard/v1/wizard'}"/>
 </div>
