@@ -1,0 +1,11 @@
+/* Core Forms wizard CSS renders the default label through
+   .cmp-adaptiveform-wizard__nextNav:before { content: "Next" } (and the same for previousNav).
+   The stepper writes the real (i18n / dialog) label as the button text, so the pseudo-element
+   must be disabled, otherwise the label shows twice (e.g. "NextVolgende"). */
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__previousNav::before,
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__previousNav::after,
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__nextNav::before,
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__nextNav::after {
+    content: none;
+    display: none;
+}
