@@ -1,0 +1,76 @@
+<div
+    data-sly-use.wizard="com.adobe.cq.forms.core.components.models.form.Panel"
+    data-sly-use.formstructparser="com.adobe.cq.forms.core.components.models.form.FormStructureParser"
+    data-sly-use.renderer="${'wizard.js'}"
+    data-sly-use.label="${renderer.labelPath}"
+    data-sly-use.shortDescription="${renderer.shortDescriptionPath}"
+    data-sly-use.longDescription="${renderer.longDescriptionPath}"
+    data-sly-use.questionMark="${renderer.questionMarkPath}"
+    data-cmp-is="adaptiveFormWizard"
+    data-cmp-adaptiveformcontainer-path="${formstructparser.formContainerPath}"
+    data-panelcontainer="wizard"
+    id="${wizard.id}"
+    class="test-wizard-htl cmp-adaptiveform-wizard cmp-adaptiveform-wizard--vertical-stepper"
+    data-placeholder-text="${'Please drag Wizard components here' @ i18n, locale=request.locale}"
+    data-sly-test.widgetId="${'{0}-{1}' @ format=[wizard.id, 'widget']}">
+    <div class="cmp-adaptiveform-wizard__label-container" role="heading">
+        <div data-sly-call="${label.label @ componentId=widgetId, labelValue=wizard.label.value, labelVisible=wizard.label.visible, labelRichText=wizard.label.richText, bemBlock='cmp-adaptiveform-wizard'}" data-sly-unwrap></div>
+        <div data-sly-call="${questionMark.questionMark @ componentId=wizard.id, longDescription=wizard.description, bemBlock='cmp-adaptiveform-wizard'}" data-sly-unwrap></div>
+    </div>
+    <div data-sly-call="${shortDescription.shortDescription @ componentId=wizard.id, shortDescriptionVisible=wizard.tooltipVisible, shortDescription=wizard.tooltip, bemBlock='cmp-adaptiveform-wizard'}" data-sly-unwrap></div>
+    <div data-sly-call="${longDescription.longDescription @ componentId=wizard.id, longDescription=wizard.description, bemBlock='cmp-adaptiveform-wizard'}" data-sly-unwrap></div>
+
+    <div class="cmp-adaptiveform-wizard__widget" id="${widgetId}">
+        <div class="cmp-adaptiveform-wizard__tabs-container">
+            <ol class="cmp-adaptiveform-wizard__tabList" role="tablist" data-sly-list.wizardItem="${wizard.items}">
+                <li
+                    id="${wizardItem.id}_wizard-item-nav"
+                    title="${wizardItem.label.value}"
+                    role="tab"
+                    class="cmp-adaptiveform-wizard__tab"
+                    aria-controls="${wizardItem.id}__wizardpanel"
+                    aria-label="${'Step {0} of {1}: {2}' @ i18n, format=[wizardItemList.count, wizard.items.size, wizardItem.label.value]}"
+                    tabindex="0"
+                    style="--wizard-step-order: ${wizardItemList.index @ context='styleString'}"
+                    data-cmp-hook-adaptiveFormWizard="tab">
+                    <span class="test-wizard-htl__step-label">${'Step {0} of {1}' @ i18n, format=[wizardItemList.count, wizard.items.size]}</span>
+                    ${wizardItem.label.value @ context=wizardItem.label.richText ? 'html' : 'text'}
+                </li>
+            </ol>
+        </div>
+
+        <sly data-sly-repeat="${wizard.exportedItems}">
+            <div
+                role="tabpanel"
+                id="${wizard.exportedItems[item].id}__wizardpanel"
+                class="cmp-adaptiveform-wizard__wizardpanel"
+                aria-labelledby="${wizard.exportedItems[item].id}_wizard-item-nav"
+                style="--wizard-step-order: ${itemList.index @ context='styleString'}"
+                data-wizard-first="${itemList.first}"
+                data-wizard-last="${itemList.last}"
+                data-cmp-hook-adaptiveFormWizard="wizardpanel">
+                <sly data-sly-resource="${item}"></sly>
+                <div class="test-wizard-htl__actions">
+                    <button
+                        type="button"
+                        class="cmp-adaptiveform-wizard__previousNav"
+                        aria-label="${'Previous' @ i18n}">${'Previous' @ i18n}</button>
+                    <button
+                        type="button"
+                        class="cmp-adaptiveform-wizard__nextNav"
+                        aria-label="${'Next' @ i18n}">${'Next' @ i18n}</button>
+                    <button
+                        data-sly-test="${properties.showSubmit && itemList.last}"
+                        type="button"
+                        class="test-wizard-htl__submit"
+                        aria-label="${properties.submitLabel || 'Submit' @ i18n}">${properties.submitLabel || 'Submit' @ i18n}</button>
+                </div>
+            </div>
+        </sly>
+    </div>
+
+    <sly data-sly-resource="${resource.path @ resourceType='core/wcm/components/container/v1/container/new', appendPath='/*', decorationTagName='div', cssClassName='new section aem-Grid-newComponent'}"></sly>
+    <sly data-sly-use.clientlib="core/wcm/components/commons/v1/templates/clientlib.html">
+        <sly data-sly-test="${wcmmode.edit}" data-sly-call="${clientlib.all @ categories='core.forms.components.wizard.v1.contentframe'}"></sly>
+    </sly>
+</div>

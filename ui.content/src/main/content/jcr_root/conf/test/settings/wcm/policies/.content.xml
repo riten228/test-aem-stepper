@@ -23,7 +23,7 @@
             jcr:primaryType="nt:unstructured"
             jcr:title="Adaptive Form Stepper Container"
             sling:resourceType="wcm/core/components/policy/policy"
-            components="[core/fd/components/forms/wizard/v1/wizard]">
+            components="[core/fd/components/forms/wizard/v1/wizard,test/components/forms/wizard-htl]">
             <jcr:content jcr:primaryType="nt:unstructured"/>
           </stepper-form-container>
         </container>
@@ -45,6 +45,35 @@
             <jcr:content jcr:primaryType="nt:unstructured"/>
           </wizard-step-policy>
         </wizard>
+        <wizard-htl jcr:primaryType="nt:unstructured">
+          <stepper-policy
+            jcr:description="Allows wizard step panels and fragments to be added to the HTL-rendered stepper."
+            jcr:primaryType="nt:unstructured"
+            jcr:title="Adaptive Form HTL Stepper Wizard"
+            sling:resourceType="wcm/core/components/policy/policy"
+            components="[core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/fragment/v1/fragment]"
+            cq:styleDefaultClasses="cmp-adaptiveform-wizard--vertical-stepper">
+            <jcr:content jcr:primaryType="nt:unstructured"/>
+            <cq:styleGroups jcr:primaryType="nt:unstructured">
+              <item0 jcr:primaryType="nt:unstructured" cq:styleGroupLabel="Stepper layout">
+                <cq:styles jcr:primaryType="nt:unstructured">
+                  <item0
+                    jcr:primaryType="nt:unstructured"
+                    cq:styleClasses="cmp-adaptiveform-wizard--vertical-stepper"
+                    cq:styleLabel="Vertical stepper"/>
+                </cq:styles>
+              </item0>
+            </cq:styleGroups>
+          </stepper-policy>
+          <wizard-step-policy
+            jcr:description="Allows adaptive form panels and fragments inside each HTL-rendered wizard step."
+            jcr:primaryType="nt:unstructured"
+            jcr:title="Adaptive Form HTL Stepper Step"
+            sling:resourceType="wcm/core/components/policy/policy"
+            components="[core/fd/components/form/textinput/v1/textinput,core/fd/components/form/emailinput/v1/emailinput,core/fd/components/form/checkbox/v1/checkbox,core/fd/components/form/radiobutton/v1/radiobutton,test/components/form/radiobutton,core/fd/components/form/datepicker/v1/datepicker,core/fd/components/form/fileupload/v1/fileupload,core/fd/components/form/panelcontainer/v1/panelcontainer,core/fd/components/form/fragment/v1/fragment,core/fd/components/form/button/v1/button]">
+            <jcr:content jcr:primaryType="nt:unstructured"/>
+          </wizard-step-policy>
+        </wizard-htl>
       </forms>
       <languagenavigation jcr:primaryType="nt:unstructured">
         <policy_xfm
