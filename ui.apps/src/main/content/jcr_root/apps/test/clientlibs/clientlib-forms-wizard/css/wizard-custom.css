@@ -193,14 +193,20 @@
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .test-wizard__actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .test-wizard__actions > * {
-    flex: 1 1 0;
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+}
+
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__nextNav,
+.test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .test-wizard__submit {
+    margin-left: auto;
 }
 
 .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .test-wizard__nav--replaced {
@@ -272,6 +278,7 @@
 
     .test-adaptiveform-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__previousNav {
         flex: 0 0 auto;
+        max-width: none;
         min-width: 0;
         padding-left: 0;
         border-color: transparent;

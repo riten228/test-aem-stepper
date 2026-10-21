@@ -11,12 +11,37 @@
         }
     }
 
+    function normalizeLabel(button) {
+        var label = button.getAttribute('aria-label');
+        if (!label) {
+            return;
+        }
+        var span = button.children.length === 1 && button.firstElementChild.tagName === 'SPAN' ? button.firstElementChild : null;
+        if (span && button.childNodes.length === 1 && span.textContent === label) {
+            return;
+        }
+        span = document.createElement('span');
+        span.className = 'test-wizard-htl__label';
+        span.textContent = label;
+        button.textContent = '';
+        button.appendChild(span);
+    }
+
+    function normalizeAll(wizard) {
+        wizard.querySelectorAll(BUTTONS + ', .test-wizard-htl__submit').forEach(normalizeLabel);
+    }
+
     function initialize(root) {
         var wizard = root.matches('.cmp-adaptiveform-wizard') ? root : root.querySelector('.cmp-adaptiveform-wizard');
         if (!wizard || wizard.testWizardHtl) {
             return;
         }
         wizard.testWizardHtl = true;
+
+        normalizeAll(wizard);
+        new MutationObserver(function () {
+            normalizeAll(wizard);
+        }).observe(wizard, {subtree: true, childList: true, characterData: true});
 
         wizard.addEventListener('click', function (event) {
             var button = event.target.closest && event.target.closest(BUTTONS);

@@ -122,14 +122,20 @@
 
 .test-wizard-htl .test-wizard-htl__actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem;
     margin-top: 1.5rem;
 }
 
 .test-wizard-htl .test-wizard-htl__actions > * {
-    flex: 1 1 0;
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+}
+
+.test-wizard-htl .cmp-adaptiveform-wizard__nextNav,
+.test-wizard-htl .test-wizard-htl__submit {
+    margin-left: auto;
 }
 
 .test-wizard-htl .cmp-adaptiveform-wizard__previousNav,
@@ -252,6 +258,7 @@
 
     .test-wizard-htl .cmp-adaptiveform-wizard__previousNav {
         flex: 0 0 auto;
+        max-width: none;
         min-width: 0;
         padding-left: 0;
         border-color: transparent;
