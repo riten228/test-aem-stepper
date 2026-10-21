@@ -159,19 +159,36 @@
             }
         });
 
-        var order = Math.max(activeIndex, 0) * 3 + 2;
         var isLast = activeIndex > -1 && activeIndex === total - 1;
         var activePanel = activeIndex > -1 ? this.panelOf(visibleTabs[activeIndex]) : null;
         var showSubmit = !!this.submitButton && isLast && !this.hasAuthoredSubmit(activePanel);
 
-        [this.prev, this.next, this.submitButton].forEach(function (nav) {
-            if (nav) {
-                nav.style.setProperty('--test-wizard-order', order);
-            }
-        });
+        this.placeActions(activePanel);
         if (this.submitButton) {
             this.submitButton.hidden = !showSubmit;
         }
+        if (this.next) {
+            this.next.classList.toggle('test-wizard__nav--replaced', isLast);
+        }
+    };
+
+    Stepper.prototype.placeActions = function (activePanel) {
+        if (!activePanel) {
+            return;
+        }
+        var bar = activePanel.querySelector(':scope > .test-wizard__actions');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.className = 'test-wizard__actions';
+            activePanel.appendChild(bar);
+        } else if (bar !== activePanel.lastElementChild) {
+            activePanel.appendChild(bar);
+        }
+        [this.prev, this.next, this.submitButton].forEach(function (nav) {
+            if (nav && nav.parentNode !== bar) {
+                bar.appendChild(nav);
+            }
+        });
     };
 
     Stepper.prototype.onKeyDown = function (event) {
