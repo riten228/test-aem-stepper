@@ -1,3 +1,4 @@
 #base=css
 wizard-custom.css
 wizard-labels.css
+wizard-stepper-icons.css
