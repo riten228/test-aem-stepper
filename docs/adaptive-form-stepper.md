@@ -47,6 +47,12 @@ Override `wizard-custom.css` to change left navigation layout, spacing, colors, 
 ## Fragment notes
 The example fragments are reusable starter structures for common sections. Copy them or reference them from the Adaptive Form Fragment component to accelerate authoring.
 
+## HTL-rendered wizard variant
+
+`test/components/forms/wizard-htl` is a separate proxy component; the existing `test/components/forms/wizard` remains unchanged. The adaptive-form-stepper template uses the new proxy by default, while both variants remain in the same Forms component group.
+
+The HTL renders the Core wizard's tabs, panels, i18n step labels, and Prev/Next/Submit buttons directly. CSS counters and the active/stepped classes maintained by the Core wizard provide numbered desktop steps and the mobile tab/panel accordion; no current-step state is calculated in HTL. The component-scoped clientlib keeps the CSS isolated. Its small JavaScript forwards clicks from the per-panel buttons to Core's single navigation handlers and dispatches the configured Submit action, avoiding DOM construction or node relocation.
+
 ## Vertical stepper
 
 ### How it works
