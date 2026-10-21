@@ -28,6 +28,18 @@
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/hidden"
                                                 name="./showSubmit@TypeHint"
                                                 value="Boolean"/>
+                                            <previousLabel
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Previous button label"
+                                                fieldDescription="Used only when no i18n translation exists for &quot;Previous&quot;."
+                                                name="./previousLabel"/>
+                                            <nextLabel
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                fieldLabel="Next button label"
+                                                fieldDescription="Used only when no i18n translation exists for &quot;Next&quot;."
+                                                name="./nextLabel"/>
                                             <submitLabel
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/textfield"

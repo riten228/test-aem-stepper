@@ -89,12 +89,24 @@
         this.sync();
     };
 
+    Stepper.prototype.normalizeNav = function (nav) {
+        var label = nav.getAttribute('aria-label');
+        if (nav.childNodes.length !== 1 || nav.firstChild.nodeType !== 3 || nav.textContent !== label) {
+            nav.textContent = label;
+        }
+    };
+
     Stepper.prototype.decorateNav = function (nav, label) {
+        var self = this;
         if (!nav) {
             return;
         }
         nav.setAttribute('role', 'button');
-        nav.textContent = label;
+        nav.setAttribute('aria-label', label);
+        this.normalizeNav(nav);
+        new MutationObserver(function () {
+            self.normalizeNav(nav);
+        }).observe(nav, {childList: true, characterData: true, subtree: true});
     };
 
     Stepper.prototype.createSubmit = function () {
