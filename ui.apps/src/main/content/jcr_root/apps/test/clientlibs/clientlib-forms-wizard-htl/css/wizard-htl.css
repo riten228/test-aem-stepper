@@ -12,13 +12,15 @@
 
 .test-wizard-htl .cmp-adaptiveform-wizard__widget {
     display: grid;
-    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
-    gap: 2rem;
+    grid-template-columns: 38% minmax(0, 1fr);
+    column-gap: 32px;
+    row-gap: 2rem;
     align-items: start;
 }
 
 .test-wizard-htl .cmp-adaptiveform-wizard__tabs-container {
     grid-column: 1;
+    min-width: 0;
 }
 
 .test-wizard-htl .cmp-adaptiveform-wizard__tabList {
