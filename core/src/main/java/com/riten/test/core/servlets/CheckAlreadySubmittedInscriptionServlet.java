@@ -1,0 +1,106 @@
+package com.riten.test.core.servlets;
+
+import amplexor.belins.services.FormsMiddlelayerConfigurationService;
+import com.adobe.aemds.guide.utils.GuideConstants;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.SlingAllMethodsServlet;
+import org.apache.sling.commons.json.JSONObject;
+import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.servlet.Servlet;
+import javax.servlet.ServletException;
+import javax.xml.ws.http.HTTPException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.sling.api.servlets.HttpConstants.METHOD_POST;
+import static org.apache.sling.api.servlets.ServletResolverConstants.*;
+
+@Component(
+        service = Servlet.class,
+        property = {
+                SLING_SERVLET_PATHS+"=/bin/forms/checkAlreadySubmittedInscription",
+                SLING_SERVLET_METHODS+"="+METHOD_POST,
+                SLING_SERVLET_SELECTORS+"=checkalreadysubmittedaction",
+                SLING_SERVLET_RESOURCE_TYPES+"=sling/servlet/default",
+                Constants.SERVICE_DESCRIPTION + "=check Already SubmittedInscription - This servlet will post data from the form to Campaign",
+                Constants.SERVICE_RANKING + ":Integer=100"
+        }
+)
+public class CheckAlreadySubmittedInscriptionServlet extends SlingAllMethodsServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckAlreadySubmittedInscriptionServlet.class);
+    private static final String TRANSACTION_KEY = "transactionKey";
+    private static final String EVENTS_KEY = "eventKey";
+    private static final String DATA_XML = "dataXml";
+
+    @Reference
+    private FormsMiddlelayerConfigurationService formsMiddlelayerConfigurationService;
+
+    @Override
+    protected void doPost(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) throws ServletException, IOException {
+
+        if (formsMiddlelayerConfigurationService != null && StringUtils.isNotEmpty(formsMiddlelayerConfigurationService.getCheckAlreadySubmittedInscriptionPath())) {
+            String endPoint = formsMiddlelayerConfigurationService.getCheckAlreadySubmittedInscriptionPath();
+
+            LOGGER.info("CheckAlreadySubmittedInscription servlet - incoming request");
+
+            HttpClient httpClient = new HttpClient();
+            PostMethod postMethod = new PostMethod(endPoint);
+
+            Map<String, String> formData = new HashMap<>();
+            formData.put(GuideConstants.DATA_XML, request.getParameter(DATA_XML));
+
+            LOGGER.debug("formData data");
+            for(String key: formData.keySet()){
+                LOGGER.debug(key+": "+formData.get(key));
+            }
+
+            Map<String, String> additionalData = new HashMap<>();
+            if (request.getParameter(TRANSACTION_KEY) != null) {
+                additionalData.put(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY));
+                LOGGER.debug("TRANSACTION_PKEY of CheckAlreadySubmittedInscription {}",TRANSACTION_KEY);
+            }
+
+            if (request.getParameter(EVENTS_KEY) != null) {
+                additionalData.put(EVENTS_KEY, request.getParameter(EVENTS_KEY));
+                LOGGER.debug("TRANSACTION_PKEY of CheckAlreadySubmittedInscription {}", EVENTS_KEY);
+            }
+
+
+            Map<String, String> requestBody = Stream.of(additionalData.entrySet(), formData.entrySet())
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            String requestBodyAsJSON = (new JSONObject(requestBody)).toString();
+            LOGGER.debug("requestBodyAsJSON {}",requestBodyAsJSON);
+            postMethod.setRequestEntity(new StringRequestEntity(requestBodyAsJSON, "application/json", "UTF-8"));
+
+            try {
+                LOGGER.info("CheckAlreadySubmittedInscription servlet - forwarding request to: {}", endPoint);
+                httpClient.executeMethod(postMethod);
+            } catch (IOException | HTTPException e) {
+                LOGGER.error("CheckAlreadySubmittedInscription servlet - error forwarding call", e);
+                response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            }
+            String responseString = postMethod.getResponseBodyAsString();
+            LOGGER.debug("responseString {}",responseString);
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(responseString);
+        }
+    }
+}

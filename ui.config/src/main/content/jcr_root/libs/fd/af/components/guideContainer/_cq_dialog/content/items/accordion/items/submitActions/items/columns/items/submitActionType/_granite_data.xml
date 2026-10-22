@@ -1,6 +1,0 @@
-<!-- BM-361 : edge case issue on citrix : requires an extra reload of action select when opening dialog in case of race conditions on select loading -->
-<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
-          jcr:primaryType="nt:unstructured"
-          submit-action-validation=""
-          af.listeners.change="guidelib.touchlib.editLayer.dialogUtils.renderSubDialog(&quot;submitAction&quot;);"
-          af.listeners.onload="guidelib.touchlib.editLayer.dialogUtils.renderSubDialog(&quot;submitAction&quot;);" />
