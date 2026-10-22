@@ -50,8 +50,8 @@ public class LeadsForConsultantPrefillServlet extends SlingAllMethodsServlet {
     private static final String SORT_TYPE = "sortType";
 
     private static final Set<String> ALLOWED_PREFILL_HOSTS = new HashSet<>(Arrays.asList(
-            "api.example.com",
-            "campaign.example.com"
+            "dvv.be",
+            "www.dvv.be"
     ));
 
     private static final Pattern SAFE_CONSULTANT_KEY = Pattern.compile("^[A-Za-z0-9_-]{1,64}$");
