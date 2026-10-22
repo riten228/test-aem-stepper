@@ -673,6 +673,4 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
         }
         return map;
     }
-
-
 }
