@@ -35,6 +35,14 @@
                                                     <single jcr:primaryType="nt:unstructured" text="Single" value="single"/>
                                                 </items>
                                             </selectionMode>
+                                            <tickOptions jcr:primaryType="nt:unstructured"
+                                                         sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                         fieldLabel="Options showing tick mark"
+                                                         fieldDescription="Option values (as in the Items list) that show a tick mark in 'Card with tick mark' style. Leave empty to show ticks on all options.">
+                                                <field jcr:primaryType="nt:unstructured"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                       name="./tickOptions"/>
+                                            </tickOptions>
                                         </items>
                                     </column>
                                 </items>
