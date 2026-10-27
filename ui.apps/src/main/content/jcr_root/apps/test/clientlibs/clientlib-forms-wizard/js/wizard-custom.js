@@ -103,7 +103,7 @@
         }
         var button = document.createElement('button');
         button.type = 'button';
-        button.className = 'test-wizard__submit';
+        button.className = 'form-wizard__submit';
         button.textContent = this.text.submit;
         button.addEventListener('click', submitForm);
         this.widget.appendChild(button);
@@ -168,7 +168,7 @@
             this.submitButton.hidden = !showSubmit;
         }
         if (this.next) {
-            this.next.classList.toggle('test-wizard__nav--replaced', isLast);
+            this.next.classList.toggle('form-wizard__nav--replaced', isLast);
         }
     };
 
@@ -176,10 +176,10 @@
         if (!activePanel) {
             return;
         }
-        var bar = activePanel.querySelector(':scope > .test-wizard__actions');
+        var bar = activePanel.querySelector(':scope > .form-wizard__actions');
         if (!bar) {
             bar = document.createElement('div');
-            bar.className = 'test-wizard__actions';
+            bar.className = 'form-wizard__actions';
             activePanel.appendChild(bar);
         } else if (bar !== activePanel.lastElementChild) {
             activePanel.appendChild(bar);
@@ -216,12 +216,12 @@
     function readConfig(root) {
         var data = root.dataset || {};
         return {
-            step: data.testWizardI18nStep,
-            previous: data.testWizardI18nPrevious,
-            next: data.testWizardI18nNext,
-            submit: data.testWizardI18nSubmit,
-            submitLabel: data.testWizardSubmitLabel,
-            showSubmit: data.testWizardSubmit === 'true'
+            step: data.formWizardI18nStep,
+            previous: data.formWizardI18nPrevious,
+            next: data.formWizardI18nNext,
+            submit: data.formWizardI18nSubmit,
+            submitLabel: data.formWizardSubmitLabel,
+            showSubmit: data.formWizardSubmit === 'true'
         };
     }
 
@@ -233,7 +233,7 @@
                 return;
             }
             wizard.classList.add(VARIANT);
-            var root = wizard.closest('[data-test-wizard-i18n-step]') || variantRoot;
+            var root = wizard.closest('[data-form-wizard-i18n-step]') || variantRoot;
             wizard.testStepper = new Stepper(wizard, readConfig(root));
         });
     }
