@@ -255,6 +255,10 @@
     grid-column: 1 / -1;
   }
 
+  .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab:not([data-step-state="completed"]) {
+    padding-right: 3rem;
+  }
+
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab:not([data-step-state="completed"])::after {
     content: "";
     position: absolute;
