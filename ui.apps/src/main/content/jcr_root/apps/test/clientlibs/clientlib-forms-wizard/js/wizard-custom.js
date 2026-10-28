@@ -109,7 +109,16 @@
       return;
     }
     nav.setAttribute('role', 'button');
-    nav.textContent = label;
+    if (nav.getAttribute('data-form-wizard-decorated') === 'true') {
+      return;
+    }
+    nav.setAttribute('data-form-wizard-decorated', 'true');
+    if (nav.childNodes.length !== 1 || nav.firstChild.nodeType !== 3 || nav.textContent !== label) {
+      while (nav.firstChild) {
+        nav.removeChild(nav.firstChild);
+      }
+      nav.appendChild(document.createTextNode(label));
+    }
   };
 
   Stepper.prototype.createSubmit = function () {

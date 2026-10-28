@@ -94,6 +94,7 @@
   box-shadow: var(--test-wizard-shadow);
   color: var(--test-wizard-text);
   font-weight: 700;
+  line-height: 1.5rem;
   cursor: pointer;
 }
 
@@ -101,6 +102,7 @@
   content: attr(data-step-label);
   display: block;
   margin-bottom: 0.125rem;
+  line-height: 1.125rem;
   font-size: 0.75rem;
   font-weight: 400;
   color: var(--test-wizard-muted);
@@ -114,17 +116,18 @@
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="completed"]::before {
+  margin-left: -2rem;
   color: var(--test-wizard-success-text);
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="completed"]::after {
   content: "";
   position: absolute;
-  top: 50%;
+  top: calc(0.875rem + 1.125rem + 0.125rem);
   left: 1rem;
   width: 1.5rem;
   height: 1.5rem;
-  transform: translateY(-50%);
+  transform: none;
   background: var(--test-wizard-check-icon) center / contain no-repeat;
 }
 
@@ -164,6 +167,13 @@
   margin-bottom: 1rem;
   font-size: 0.875rem;
   color: var(--test-wizard-muted);
+}
+
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__previousNav::before,
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__previousNav::after,
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__nextNav::before,
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__nextNav::after {
+  content: none;
 }
 
 /* Button row: Previous (left) / Next or Submit (right) */
@@ -290,8 +300,10 @@
 
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="active"] {
     background: #fff;
-    border-color: transparent;
-    box-shadow: none;
+    border-color: var(--test-wizard-border);
+    border-bottom: 0;
+    box-shadow: var(--test-wizard-shadow);
+    clip-path: inset(-10px -10px 0 -10px);
     margin-bottom: -0.75rem;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -299,6 +311,8 @@
 
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__wizardpanel {
     border-top: 0;
+    box-shadow: var(--test-wizard-shadow);
+    clip-path: inset(0 -10px -10px -10px);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
