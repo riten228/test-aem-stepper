@@ -62,13 +62,13 @@
   --test-wizard-upcoming-bg: #f2f2f2;
   --test-wizard-border: #d5d5d5;
   --test-wizard-radius: 0.75rem;
-  --test-wizard-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --test-wizard-shadow: 1.14px 2.28px 0 0 rgba(0, 0, 0, 0.05);
   --test-wizard-check-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234caf50'/%3E%3Cpath d='M7 12.5l3.2 3.2L17 9' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color: var(--test-wizard-text);
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__widget {
-  grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 35fr) minmax(0, 65fr);
   grid-template-rows: auto;
   column-gap: 2rem;
   row-gap: 1rem;
@@ -87,7 +87,7 @@
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab {
   position: relative;
   display: block;
-  padding: 0.875rem 3rem 0.875rem 1rem;
+  padding: 0.875rem 1rem;
   border: 1px solid var(--test-wizard-border);
   border-radius: var(--test-wizard-radius);
   background: #fff;
@@ -107,8 +107,9 @@
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="completed"] {
+  padding-left: 3rem;
   border-color: var(--test-wizard-success);
-  background: var(--test-wizard-success-bg);
+  background: #fff;
   color: var(--test-wizard-success-text);
 }
 
@@ -120,7 +121,7 @@
   content: "";
   position: absolute;
   top: 50%;
-  right: 1rem;
+  left: 1rem;
   width: 1.5rem;
   height: 1.5rem;
   transform: translateY(-50%);
@@ -128,8 +129,8 @@
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="active"] {
-  border-color: var(--test-wizard-success);
-  background: var(--test-wizard-success-bg);
+  border-color: var(--test-wizard-border);
+  background: #fff;
   color: var(--test-wizard-text);
 }
 
@@ -226,6 +227,10 @@
    display: contents on the containers is the only way to interleave each tab with its
    panel; the interleaving order is written by JS (--test-wizard-order). */
 @media (max-width: 767px) {
+  .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper {
+    --test-wizard-shadow: 1px 2px 0 0 rgba(0, 0, 0, 0.05);
+  }
+
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__widget {
     display: grid;
     grid-template-columns: 1fr;
@@ -248,6 +253,10 @@
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab,
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__wizardpanel {
     grid-column: 1 / -1;
+  }
+
+  .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab:not([data-step-state="completed"]) {
+    padding-right: 3rem;
   }
 
   .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab:not([data-step-state="completed"])::after {
