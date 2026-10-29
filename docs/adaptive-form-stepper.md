@@ -78,16 +78,18 @@ The variant is on by default for every wizard rendered with `test/components/for
 ### Skipped steps
 Steps hidden by a rule (`visible = false` on the step panel) are not removed from the stepper. `wizard-custom.js` keeps them, numbers them in "Step X of N", and sets `data-step-state="skipped"`. The Core wizard navigates past them, and the stepper shows them in yellow (`--test-wizard-skipped-*` variables) with `aria-disabled="true"`.
 
-Skipping is authored per radio option in the wizard dialog (Basic tab) under **Skip steps when a radio option is selected**. Each entry is one rule in the format `radioGroupName|optionValue|stepSomExpression`:
-- `radioGroupName`: the name of the radio button group field that drives the rule.
+Skipping is authored per radio option in the wizard dialog (Basic tab) under **Skip steps when a radio option is selected**. Each entry is one rule in the format `radioGroupName|optionValue|stepName`:
+- `radioGroupName`: the Name of the radio button field that drives the rule.
 - `optionValue`: the option value that triggers the skip.
-- `stepSomExpression`: the SOM expression of the step panel to skip (copy it from the authoring UI).
+- `stepName`: the Name of the step panel to skip.
+
+Authors find both names in each component's properties (Name field). No SOM expression is needed.
 
 While the radio group has `optionValue` selected, the step is hidden (`visible = false`); when another option is selected, it is shown again. Core navigation then goes past it.
 
-Example: the rule `productType|basic|guide[0].guideContainer[0].step3[0]` skips Step 3 when the `productType` radio group is set to `basic`, so Next goes from Step 2 to Step 4.
+Example: `productType|basic|step3` skips the panel named `step3` when the `productType` radio group is set to `basic`, so Next goes from Step 2 to Step 4.
 
-Rules are applied by `wizard-custom.js` through `window.guideBridge.setProperty(..., 'visible', ...)`. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
+Rules are applied by `wizard-custom.js`, which resolves both names with `formModel.getElement(name)` and sets `visible` on the step. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
 
 ### i18n
 Keys "Step {0} of {1}", "Previous", "Next" and "Submit" are in `apps/test/i18n` (`fr.json`, `nl.json`).

@@ -50,9 +50,9 @@
       var parts = el.getAttribute('data-skip-rule').split('|').map(function (part) {
         return part.trim();
       });
-      return {radioGroup: parts[0], option: parts[1], step: parts[2]};
+      return {radioGroup: parts[0], option: parts[1], stepName: parts[2]};
     }).filter(function (rule) {
-      return rule.radioGroup && rule.option && rule.step;
+    return rule.radioGroup && rule.option && rule.stepName;
     });
   }
 
@@ -83,8 +83,13 @@
           console.warn('[form-wizard] Radio group not found for skip rule: ' + rule.radioGroup);
           return;
         }
+        var step = model.getElement(rule.stepName);
+        if (!step) {
+          console.warn('[form-wizard] Step not found for skip rule: ' + rule.stepName);
+          return;
+        }
         var apply = function (value) {
-          window.guideBridge.setProperty(rule.step, 'visible', value !== rule.option);
+          step.visible = value !== rule.option;
         };
         field.subscribe('value', apply);
         apply(field.value);
