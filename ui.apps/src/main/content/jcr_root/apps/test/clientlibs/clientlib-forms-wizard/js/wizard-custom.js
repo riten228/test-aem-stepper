@@ -45,6 +45,53 @@
     }
   }
 
+  function parseSkipRules(root) {
+    return Array.prototype.slice.call(root.querySelectorAll('[data-skip-rule]')).map(function (el) {
+      var parts = el.getAttribute('data-skip-rule').split('|').map(function (part) {
+        return part.trim();
+      });
+      return {radioGroup: parts[0], option: parts[1], step: parts[2]};
+    }).filter(function (rule) {
+      return rule.radioGroup && rule.option && rule.step;
+    });
+  }
+
+  function whenFormReady(callback) {
+    if (window.guideBridge && window.guideBridge.connect) {
+      window.guideBridge.connect(callback);
+    } else {
+      window.addEventListener('bridgeInitializeStart', function (event) {
+        event.detail.guideBridge.connect(callback);
+      });
+    }
+  }
+
+  // Hides each configured step while its radio group has the configured option selected.
+  function bindSkipRules(rules) {
+    if (!rules.length) {
+      return;
+    }
+    whenFormReady(function () {
+      var model = getFormModel();
+      if (!model) {
+        console.warn('[form-wizard] Form model not available; skip rules not applied.');
+        return;
+      }
+      rules.forEach(function (rule) {
+        var field = model.getElement(rule.radioGroup);
+        if (!field) {
+          console.warn('[form-wizard] Radio group not found for skip rule: ' + rule.radioGroup);
+          return;
+        }
+        var apply = function (value) {
+          window.guideBridge.setProperty(rule.step, 'visible', value !== rule.option);
+        };
+        field.subscribe('value', apply);
+        apply(field.value);
+      });
+    });
+  }
+
   function Stepper(wizard, config) {
     this.wizard = wizard;
     this.text = {
@@ -271,6 +318,7 @@
       wizard.classList.add(VARIANT);
       var root = wizard.closest('[data-form-wizard-i18n-step]') || variantRoot;
       wizard.testStepper = new Stepper(wizard, readConfig(root));
+      bindSkipRules(parseSkipRules(root));
     });
   }
 

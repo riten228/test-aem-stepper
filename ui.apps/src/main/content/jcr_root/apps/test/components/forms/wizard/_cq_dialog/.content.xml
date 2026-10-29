@@ -34,6 +34,14 @@
                                                 fieldLabel="Submit button label"
                                                 fieldDescription="Defaults to the translated &quot;Submit&quot; text."
                                                 name="./submitLabel"/>
+                                            <skipRules jcr:primaryType="nt:unstructured"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                                       fieldLabel="Skip steps when a radio option is selected"
+                                                       fieldDescription="One entry per rule, in the format: radioGroupName|optionValue|stepSomExpression. The step is hidden while the radio group has that option selected and shown again otherwise. Copy the SOM expression of the step panel from the authoring UI.">
+                                                <field jcr:primaryType="nt:unstructured"
+                                                       sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                                       name="./skipRules"/>
+                                            </skipRules>
                                         </items>
                                     </column>
                                 </items>
