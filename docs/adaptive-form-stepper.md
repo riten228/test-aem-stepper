@@ -75,6 +75,11 @@ The variant is on by default for every wizard rendered with `test/components/for
 2. **Hardcoded**: in the wizard dialog (Basic tab) enable **Show submit button on last step** and optionally set **Submit button label**. The dialog is merged onto the Core wizard dialog through the proxy.
 3. No duplicate: the hardcoded button is not shown when the last step contains a `button[type="submit"]`.
 
+### Skipped steps
+Steps hidden by a rule (`visible = false` on the step panel) are not removed from the stepper. `wizard-custom.js` keeps them, numbers them in "Step X of N", and sets `data-step-state="skipped"`. The Core wizard navigates past them, and the stepper shows them in yellow (`--test-wizard-skipped-*` variables) with `aria-disabled="true"`.
+
+Example: a rule on a checkbox group's change event sets the panels for Step 2 and Step 3 to hidden when a given option is selected, so Next goes from Step 1 to Step 4.
+
 ### i18n
 Keys "Step {0} of {1}", "Previous", "Next" and "Submit" are in `apps/test/i18n` (`fr.json`, `nl.json`).
 
