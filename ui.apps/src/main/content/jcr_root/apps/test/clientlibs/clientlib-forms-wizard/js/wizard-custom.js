@@ -151,27 +151,39 @@
   };
 
   Stepper.prototype.sync = function () {
-    var visibleTabs = this.tabs().filter(isVisible);
-    var total = visibleTabs.length;
+    // Steps hidden by rules are kept in the list as "skipped" so the stepper shows them.
+    var tabs = this.tabs();
+    var total = tabs.length;
     var activeIndex = -1;
+    var lastVisibleIndex = -1;
     var self = this;
 
-    visibleTabs.forEach(function (tab, index) {
+    tabs.forEach(function (tab, index) {
       if (tab.classList.contains(ACTIVE_TAB)) {
         activeIndex = index;
       }
+      if (isVisible(tab)) {
+        lastVisibleIndex = index;
+      }
     });
 
-    visibleTabs.forEach(function (tab, index) {
+    tabs.forEach(function (tab, index) {
       var panel = self.panelOf(tab);
       var label = format(self.text.step, [index + 1, total]);
-      var state = index < activeIndex ? 'completed' : (index === activeIndex ? 'active' : 'upcoming');
+      var state;
+      if (!isVisible(tab)) {
+        state = 'skipped';
+      } else if (index < activeIndex) {
+        state = 'completed';
+      } else {
+        state = index === activeIndex ? 'active' : 'upcoming';
+      }
 
       tab.setAttribute('data-step-label', label);
       tab.setAttribute('data-step-state', state);
       tab.style.setProperty('--test-wizard-order', index * 3); //TODO
       tab.setAttribute('aria-expanded', state === 'active' ? 'true' : 'false');
-      tab.setAttribute('aria-disabled', state === 'upcoming' ? 'true' : 'false');
+      tab.setAttribute('aria-disabled', state === 'upcoming' || state === 'skipped' ? 'true' : 'false');
       if (state === 'active') {
         tab.setAttribute('aria-current', 'step');
       } else {
@@ -183,8 +195,8 @@
       }
     });
 
-    var isLast = activeIndex > -1 && activeIndex === total - 1;
-    var activePanel = activeIndex > -1 ? this.panelOf(visibleTabs[activeIndex]) : null;
+    var isLast = activeIndex > -1 && activeIndex === lastVisibleIndex;
+    var activePanel = activeIndex > -1 ? this.panelOf(tabs[activeIndex]) : null;
     var showSubmit = !!this.submitButton && isLast && !this.hasAuthoredSubmit(activePanel);
 
     this.placeActions(activePanel);

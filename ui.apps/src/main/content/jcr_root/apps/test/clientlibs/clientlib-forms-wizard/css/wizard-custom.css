@@ -60,6 +60,9 @@
   --test-wizard-text: #202020;
   --test-wizard-muted: #8a8a8a;
   --test-wizard-upcoming-bg: #f2f2f2;
+  --test-wizard-skipped-bg: #fffde7;
+  --test-wizard-skipped-border: #f9a825;
+  --test-wizard-skipped-text: #8d6e00;
   --test-wizard-border: #d5d5d5;
   --test-wizard-radius: 0.75rem;
   --test-wizard-shadow: 1.14px 2.28px 0 0 rgba(0, 0, 0, 0.05);
@@ -144,6 +147,21 @@
   color: var(--test-wizard-muted);
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Steps skipped by a rule: stay in the stepper (yellow), never navigable */
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="skipped"] {
+  display: block;
+  border-color: var(--test-wizard-skipped-border);
+  background: var(--test-wizard-skipped-bg);
+  box-shadow: none;
+  color: var(--test-wizard-skipped-text);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab[data-step-state="skipped"]::before {
+  color: var(--test-wizard-skipped-text);
 }
 
 .dvv-wizard.cmp-adaptiveform-wizard--vertical-stepper .cmp-adaptiveform-wizard__tab:focus-visible {
