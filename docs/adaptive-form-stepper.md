@@ -78,7 +78,25 @@ The variant is on by default for every wizard rendered with `test/components/for
 ### Skipped steps
 Steps hidden by a rule (`visible = false` on the step panel) are not removed from the stepper. `wizard-custom.js` keeps them, numbers them in "Step X of N", and sets `data-step-state="skipped"`. The Core wizard navigates past them, and the stepper shows them in yellow (`--test-wizard-skipped-*` variables) with `aria-disabled="true"`.
 
-Example: a rule on a checkbox group's change event sets the panels for Step 2 and Step 3 to hidden when a given option is selected, so Next goes from Step 1 to Step 4.
+Skipping is authored per option in the wizard dialog (Basic tab) under **Skip steps when an option is selected**. Each entry is one rule in the format `checkboxGroupName|optionValue|stepName`:
+- `checkboxGroupName`: the Name of the checkbox group field that drives the rule.
+- `optionValue`: the option value that triggers the skip. It must match the option's value in the checkbox group's Items list.
+- `stepName`: the Name of the step panel to skip.
+
+Authors find both names in each component's properties (Name field). No SOM expression is needed.
+
+The checkbox group can be in Multiple or Single selection mode. The step is hidden while `optionValue` is among the selected values (`visible = false`), and shown again when it is deselected. Core navigation then goes past it.
+
+Example: `productType|basic|step3` skips the panel named `step3` while `basic` is selected in the `productType` checkbox group, so Next goes from Step 2 to Step 4.
+
+Rules are applied by `wizard-custom.js`, which resolves both names with `formModel.getElement(name)` and sets `visible` on the steps. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
+
+### Multi-step skip flows
+- Skips chain: a step's checkbox group can skip a later step, and that step's checkbox group can skip another. For example, Step 1 skips Step 2, and a selection in Step 3 skips Step 4 and Step 5.
+- A checkbox group in a step that is already skipped is ignored, so its selection cannot skip further steps.
+- Several rules can target the same step; the step is hidden if any of them fires.
+- Rule order in the dialog does not matter. All visibility is recomputed from the current selections on every change.
+- Skipped steps keep any values they already had. They are not cleared, so they may still be submitted.
 
 ### i18n
 Keys "Step {0} of {1}", "Previous", "Next" and "Submit" are in `apps/test/i18n` (`fr.json`, `nl.json`).

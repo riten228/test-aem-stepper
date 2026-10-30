@@ -45,6 +45,103 @@
     }
   }
 
+  function parseSkipRules(root) {
+    return Array.prototype.slice.call(root.querySelectorAll('[data-skip-rule]')).map(function (el) {
+      var parts = el.getAttribute('data-skip-rule').split('|').map(function (part) {
+        return part.trim();
+      });
+      return {checkboxGroup: parts[0], option: parts[1], stepName: parts[2]};
+    }).filter(function (rule) {
+      return rule.checkboxGroup && rule.option && rule.stepName;
+    });
+  }
+
+  function whenFormReady(callback) {
+    if (window.guideBridge && window.guideBridge.connect) {
+      window.guideBridge.connect(callback);
+    } else {
+      window.addEventListener('bridgeInitializeStart', function (event) {
+        event.detail.guideBridge.connect(callback);
+      });
+    }
+  }
+
+  // A node is in the flow only if neither it nor any ancestor is hidden.
+  function inFlow(node) {
+    for (var current = node; current; current = current.parent) {
+      if (current.visible === false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Recomputes every targeted step from all rules, so chained skips resolve in any rule order.
+  // A rule only fires from a checkbox group that is itself still in the flow.
+  function bindSkipRules(rules) {
+    if (!rules.length) {
+      return;
+    }
+    whenFormReady(function () {
+      var model = getFormModel();
+      if (!model) {
+        console.warn('[form-wizard] Form model not available; skip rules not applied.');
+        return;
+      }
+      var resolved = [];
+      rules.forEach(function (rule) {
+        var source = model.getElement(rule.checkboxGroup);
+        var target = model.getElement(rule.stepName);
+        if (!source) {
+          console.warn('[form-wizard] Checkbox group not found for skip rule: ' + rule.checkboxGroup);
+        } else if (!target) {
+          console.warn('[form-wizard] Step not found for skip rule: ' + rule.stepName);
+        } else {
+          resolved.push({source: source, option: rule.option, target: target});
+        }
+      });
+      if (!resolved.length) {
+        return;
+      }
+
+      var isSelected = function (source, option) {
+        var value = source.value;
+        var selected = Array.isArray(value) ? value : [value];
+        return selected.indexOf(option) !== -1;
+      };
+
+      var targets = resolved.map(function (rule) {
+        return rule.target;
+      }).filter(function (target, index, all) {
+        return all.indexOf(target) === index;
+      });
+
+      var recompute = function () {
+        var changed = true;
+        var passes = 0;
+        // Visibility only propagates along a chain, so the loop settles within targets.length passes.
+        while (changed && passes <= targets.length) {
+          changed = false;
+          passes++;
+          targets.forEach(function (target) {
+            var hidden = resolved.some(function (rule) {
+              return rule.target === target && isSelected(rule.source, rule.option) && inFlow(rule.source);
+            });
+            if (target.visible !== !hidden) {
+              target.visible = !hidden;
+              changed = true;
+            }
+          });
+        }
+      };
+
+      resolved.forEach(function (rule) {
+        rule.source.subscribe('value', recompute);
+      });
+      recompute();
+    });
+  }
+
   function Stepper(wizard, config) {
     this.wizard = wizard;
     this.text = {
@@ -271,6 +368,7 @@
       wizard.classList.add(VARIANT);
       var root = wizard.closest('[data-form-wizard-i18n-step]') || variantRoot;
       wizard.testStepper = new Stepper(wizard, readConfig(root));
+      bindSkipRules(parseSkipRules(root));
     });
   }
 
