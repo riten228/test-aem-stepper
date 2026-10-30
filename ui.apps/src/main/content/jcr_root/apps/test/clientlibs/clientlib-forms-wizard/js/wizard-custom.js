@@ -50,9 +50,9 @@
       var parts = el.getAttribute('data-skip-rule').split('|').map(function (part) {
         return part.trim();
       });
-      return {radioGroup: parts[0], option: parts[1], stepName: parts[2]};
+      return {checkboxGroup: parts[0], option: parts[1], stepName: parts[2]};
     }).filter(function (rule) {
-    return rule.radioGroup && rule.option && rule.stepName;
+      return rule.checkboxGroup && rule.option && rule.stepName;
     });
   }
 
@@ -66,7 +66,7 @@
     }
   }
 
-  // Hides each configured step while its radio group has the configured option selected.
+  // Hides each configured step while its checkbox group has the configured option selected.
   function bindSkipRules(rules) {
     if (!rules.length) {
       return;
@@ -78,9 +78,9 @@
         return;
       }
       rules.forEach(function (rule) {
-        var field = model.getElement(rule.radioGroup);
+        var field = model.getElement(rule.checkboxGroup);
         if (!field) {
-          console.warn('[form-wizard] Radio group not found for skip rule: ' + rule.radioGroup);
+          console.warn('[form-wizard] Checkbox group not found for skip rule: ' + rule.checkboxGroup);
           return;
         }
         var step = model.getElement(rule.stepName);
@@ -88,8 +88,12 @@
           console.warn('[form-wizard] Step not found for skip rule: ' + rule.stepName);
           return;
         }
+        var isSelected = function (value) {
+          var selected = Array.isArray(value) ? value : [value];
+          return selected.indexOf(rule.option) !== -1;
+        };
         var apply = function (value) {
-          step.visible = value !== rule.option;
+          step.visible = !isSelected(value);
         };
         field.subscribe('value', apply);
         apply(field.value);

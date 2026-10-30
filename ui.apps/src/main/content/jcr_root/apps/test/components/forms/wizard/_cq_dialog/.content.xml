@@ -36,8 +36,8 @@
                                                 name="./submitLabel"/>
                                             <skipRules jcr:primaryType="nt:unstructured"
                                                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
-                                                       fieldLabel="Skip steps when a radio option is selected"
-                                                       fieldDescription="One entry per rule, in the format: radioGroupName|optionValue|stepName. Use the Name of the radio group and of the step panel (shown in the component's properties). The step is hidden while the radio group has that option selected and shown again otherwise.">
+                                                       fieldLabel="Skip steps when an option is selected"
+                                                       fieldDescription="One entry per rule, in the format: checkboxGroupName|optionValue|stepName. Use the Name of the checkbox group and of the step panel (shown in the component's properties). The step is hidden while the option is selected in the checkbox group and shown again otherwise.">
                                                 <field jcr:primaryType="nt:unstructured"
                                                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                                                        name="./skipRules"/>

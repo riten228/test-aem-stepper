@@ -78,16 +78,16 @@ The variant is on by default for every wizard rendered with `test/components/for
 ### Skipped steps
 Steps hidden by a rule (`visible = false` on the step panel) are not removed from the stepper. `wizard-custom.js` keeps them, numbers them in "Step X of N", and sets `data-step-state="skipped"`. The Core wizard navigates past them, and the stepper shows them in yellow (`--test-wizard-skipped-*` variables) with `aria-disabled="true"`.
 
-Skipping is authored per radio option in the wizard dialog (Basic tab) under **Skip steps when a radio option is selected**. Each entry is one rule in the format `radioGroupName|optionValue|stepName`:
-- `radioGroupName`: the Name of the radio button field that drives the rule.
-- `optionValue`: the option value that triggers the skip.
+Skipping is authored per option in the wizard dialog (Basic tab) under **Skip steps when an option is selected**. Each entry is one rule in the format `checkboxGroupName|optionValue|stepName`:
+- `checkboxGroupName`: the Name of the checkbox group field that drives the rule.
+- `optionValue`: the option value that triggers the skip. It must match the option's value in the checkbox group's Items list.
 - `stepName`: the Name of the step panel to skip.
 
 Authors find both names in each component's properties (Name field). No SOM expression is needed.
 
-While the radio group has `optionValue` selected, the step is hidden (`visible = false`); when another option is selected, it is shown again. Core navigation then goes past it.
+The checkbox group can be in Multiple or Single selection mode. The step is hidden while `optionValue` is among the selected values (`visible = false`), and shown again when it is deselected. Core navigation then goes past it.
 
-Example: `productType|basic|step3` skips the panel named `step3` when the `productType` radio group is set to `basic`, so Next goes from Step 2 to Step 4.
+Example: `productType|basic|step3` skips the panel named `step3` while `basic` is selected in the `productType` checkbox group, so Next goes from Step 2 to Step 4.
 
 Rules are applied by `wizard-custom.js`, which resolves both names with `formModel.getElement(name)` and sets `visible` on the step. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
 
