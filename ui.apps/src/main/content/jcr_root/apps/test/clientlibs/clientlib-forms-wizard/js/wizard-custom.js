@@ -66,7 +66,18 @@
     }
   }
 
-  // Hides each configured step while its checkbox group has the configured option selected.
+  // A node is in the flow only if neither it nor any ancestor is hidden.
+  function inFlow(node) {
+    for (var current = node; current; current = current.parent) {
+      if (current.visible === false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Recomputes every targeted step from all rules, so chained skips resolve in any rule order.
+  // A rule only fires from a checkbox group that is itself still in the flow.
   function bindSkipRules(rules) {
     if (!rules.length) {
       return;
@@ -77,27 +88,57 @@
         console.warn('[form-wizard] Form model not available; skip rules not applied.');
         return;
       }
+      var resolved = [];
       rules.forEach(function (rule) {
-        var field = model.getElement(rule.checkboxGroup);
-        if (!field) {
+        var source = model.getElement(rule.checkboxGroup);
+        var target = model.getElement(rule.stepName);
+        if (!source) {
           console.warn('[form-wizard] Checkbox group not found for skip rule: ' + rule.checkboxGroup);
-          return;
-        }
-        var step = model.getElement(rule.stepName);
-        if (!step) {
+        } else if (!target) {
           console.warn('[form-wizard] Step not found for skip rule: ' + rule.stepName);
-          return;
+        } else {
+          resolved.push({source: source, option: rule.option, target: target});
         }
-        var isSelected = function (value) {
-          var selected = Array.isArray(value) ? value : [value];
-          return selected.indexOf(rule.option) !== -1;
-        };
-        var apply = function (value) {
-          step.visible = !isSelected(value);
-        };
-        field.subscribe('value', apply);
-        apply(field.value);
       });
+      if (!resolved.length) {
+        return;
+      }
+
+      var isSelected = function (source, option) {
+        var value = source.value;
+        var selected = Array.isArray(value) ? value : [value];
+        return selected.indexOf(option) !== -1;
+      };
+
+      var targets = resolved.map(function (rule) {
+        return rule.target;
+      }).filter(function (target, index, all) {
+        return all.indexOf(target) === index;
+      });
+
+      var recompute = function () {
+        var changed = true;
+        var passes = 0;
+        // Visibility only propagates along a chain, so the loop settles within targets.length passes.
+        while (changed && passes <= targets.length) {
+          changed = false;
+          passes++;
+          targets.forEach(function (target) {
+            var hidden = resolved.some(function (rule) {
+              return rule.target === target && isSelected(rule.source, rule.option) && inFlow(rule.source);
+            });
+            if (target.visible !== !hidden) {
+              target.visible = !hidden;
+              changed = true;
+            }
+          });
+        }
+      };
+
+      resolved.forEach(function (rule) {
+        rule.source.subscribe('value', recompute);
+      });
+      recompute();
     });
   }
 

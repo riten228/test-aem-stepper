@@ -89,7 +89,14 @@ The checkbox group can be in Multiple or Single selection mode. The step is hidd
 
 Example: `productType|basic|step3` skips the panel named `step3` while `basic` is selected in the `productType` checkbox group, so Next goes from Step 2 to Step 4.
 
-Rules are applied by `wizard-custom.js`, which resolves both names with `formModel.getElement(name)` and sets `visible` on the step. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
+Rules are applied by `wizard-custom.js`, which resolves both names with `formModel.getElement(name)` and sets `visible` on the steps. Rules can also be set in the Rule Editor; the dialog rules do not replace them.
+
+### Multi-step skip flows
+- Skips chain: a step's checkbox group can skip a later step, and that step's checkbox group can skip another. For example, Step 1 skips Step 2, and a selection in Step 3 skips Step 4 and Step 5.
+- A checkbox group in a step that is already skipped is ignored, so its selection cannot skip further steps.
+- Several rules can target the same step; the step is hidden if any of them fires.
+- Rule order in the dialog does not matter. All visibility is recomputed from the current selections on every change.
+- Skipped steps keep any values they already had. They are not cleared, so they may still be submitted.
 
 ### i18n
 Keys "Step {0} of {1}", "Previous", "Next" and "Submit" are in `apps/test/i18n` (`fr.json`, `nl.json`).
