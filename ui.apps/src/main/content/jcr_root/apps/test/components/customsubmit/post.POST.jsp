@@ -1,11 +1,11 @@
 <%@include file="/libs/fd/af/components/guidesglobal.jsp" %>
-<%@page import="amplexor.belins.model.forms.CustomSubmitType,
-                amplexor.belins.model.reusable.RunModes,
-                amplexor.belins.services.FormsMiddlelayerConfigurationService,
-                amplexor.belins.services.captcha.CaptchaValidationService" %>
+<%@page import="model.forms.CustomSubmitType,
+                model.reusable.RunModes,
+                services.FormsMiddlelayerConfigurationService,
+                services.captcha.CaptchaValidationService" %>
 
-<%@ page import="amplexor.belins.utils.Constants" %>
-<%@ page import="amplexor.belins.utils.LinkUtil" %>
+<%@ page import="utils.Constants" %>
+<%@ page import="utils.LinkUtil" %>
 <%@ page import="org.apache.sling.api.SlingHttpServletRequest" %>
 <%@ page import="org.apache.sling.api.SlingHttpServletResponse" %>
 <%@ page import="org.apache.sling.api.resource.ValueMap" %>

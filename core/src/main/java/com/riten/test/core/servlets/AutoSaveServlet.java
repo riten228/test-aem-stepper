@@ -1,6 +1,5 @@
 package com.riten.test.core.servlets;
 
-import amplexor.belins.services.FormsMiddlelayerConfigurationService;
 import com.adobe.aemds.guide.utils.GuideConstants;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;

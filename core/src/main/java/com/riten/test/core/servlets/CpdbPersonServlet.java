@@ -1,6 +1,5 @@
 package com.riten.test.core.servlets;
 
-import amplexor.belins.services.FormsMiddlelayerConfigurationService;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
