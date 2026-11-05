@@ -72,7 +72,7 @@ public class AutoSaveServlet extends SlingAllMethodsServlet {
 
             LOGGER.debug("formData data");
             for(String key: formData.keySet()){
-                LOGGER.debug(key+": "+formData.get(key));
+                LOGGER.debug("formData field: {}", key);
             }
 
             Map<String, String> additionalData = new HashMap<>();
@@ -104,7 +104,7 @@ public class AutoSaveServlet extends SlingAllMethodsServlet {
 
             LOGGER.debug("additionalData data");
             for(String key: additionalData.keySet()){
-                LOGGER.debug(key+": "+additionalData.get(key));
+                LOGGER.debug("additionalData field: {}", key);
             }
 
             Map<String, String> requestBody = Stream.of(additionalData.entrySet(), formData.entrySet())
@@ -117,14 +117,17 @@ public class AutoSaveServlet extends SlingAllMethodsServlet {
             try {
                 LOGGER.info("Autosave servlet - forwarding request to: {}", endPoint);
                 httpClient.executeMethod(postMethod);
+                String responseString = postMethod.getResponseBodyAsString();
+                LOGGER.debug("responseString {}",responseString);
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json");
+                response.getWriter().write(responseString);
             } catch (IOException | HTTPException e) {
                 LOGGER.error("Autosave servlet - error forwarding call", e);
                 response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            } finally {
+                postMethod.releaseConnection();
             }
-            String responseString = postMethod.getResponseBodyAsString();
-            LOGGER.debug("responseString {}",responseString);
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(responseString);
         }
     }
 }

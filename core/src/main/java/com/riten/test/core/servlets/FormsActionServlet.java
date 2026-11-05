@@ -4,6 +4,7 @@ import com.adobe.aemds.guide.utils.GuideConstants;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
+import com.riten.test.core.models.Constants;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -24,6 +25,8 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -145,7 +148,7 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
                 String fieldValue = entry.getValue();
 
                 if (StringUtils.isNotBlank(fieldValue) && HTML_TAG.matcher(fieldValue).find()) {
-                    LOGGER.warn("HTML detected in field {} with value {} → blocking submit", fieldName, fieldValue);
+                    LOGGER.warn("HTML detected in field {} - blocking submit", fieldName);
                     String errorPage = MessageFormat.format(formsMiddlelayerConfigurationService.getErrorPagePath(), lang);
                     response.sendRedirect(errorPage);
                     return; // STOP submit
@@ -349,12 +352,12 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
 
         LOGGER.debug("additionalData data");
         for (String key : additionalData.keySet()) {
-            LOGGER.debug(key + ": " + additionalData.get(key));
+            LOGGER.debug("additionalData field: {}", key);
         }
 
         LOGGER.debug("formData data");
         for (String key : formData.keySet()) {
-            LOGGER.debug(key + ": " + formData.get(key));
+            LOGGER.debug("formData field: {}", key);
         }
 
         Map<String, String> requestBody = Stream.of(additionalData.entrySet(), formData.entrySet())
@@ -406,6 +409,8 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body");
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    getMethod.releaseConnection();
                 }
             } else {
                 // Submit Data
@@ -415,7 +420,7 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
 
                 try {
                     LOGGER.info("Forms action servlet - forwarding request to: {}", endPoint);
-                    LOGGER.debug("Method path: {} & queryString {} & toString {}", postMethod.getPath(), postMethod.getQueryString(), postMethod.toString());
+                    LOGGER.debug("Method path: {}", postMethod.getPath());
                     if(isAllowedEndpoint(endPoint)) {
                         LOGGER.debug("Forms action servlet - forwarding request to allowed endpoint: {}", endPoint);
                         returnCode = httpClient.executeMethod(postMethod);
@@ -453,6 +458,8 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body: {}", e.getMessage(), e);
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    postMethod.releaseConnection();
                 }
             }
 
@@ -608,8 +615,10 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
 
     private String formatUrlParams(List<NameValuePair> urlParams) {
         if (!urlParams.isEmpty()) {
-            String url = urlParams.stream().map(urlParam -> "&" + urlParam.getName() + "=" + urlParam.getValue()).collect(Collectors.joining()).substring(1);
-            LOGGER.debug("urlParams formatted: {}", url);
+            String url = urlParams.stream()
+                    .map(urlParam -> "&" + encodeUrlComponent(urlParam.getName()) + "=" + encodeUrlComponent(urlParam.getValue()))
+                    .collect(Collectors.joining()).substring(1);
+            LOGGER.debug("urlParams formatted with {} parameter(s)", urlParams.size());
             if (StringUtils.isNotEmpty(url)) {
                 return "?" + url;
             }
@@ -617,6 +626,10 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
         }
         LOGGER.info("urlParams is empty");
         return StringUtils.EMPTY;
+    }
+
+    private static String encodeUrlComponent(String value) {
+        return value == null ? StringUtils.EMPTY : URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private String setSubmitType(String hiddenParameters, String submitType) {
@@ -701,11 +714,12 @@ public class FormsActionServlet extends SlingAllMethodsServlet {
 
     private boolean isAllowedEndpoint(String endPoint) {
       try {
-        URI uri = new URI(endPoint);
+        URI uri = new URI(endPoint, true);
         return "https".equalsIgnoreCase(uri.getScheme())
           && formsMiddlelayerConfigurationService.getAllowedHosts().contains(uri.getHost());
       } catch (URIException e) {
-        throw new RuntimeException(e);
+        LOGGER.warn("Rejecting malformed endpoint: {}", e.getMessage());
+        return false;
       }
     }
 

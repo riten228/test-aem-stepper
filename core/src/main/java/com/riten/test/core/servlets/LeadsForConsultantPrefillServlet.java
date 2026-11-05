@@ -114,6 +114,7 @@ public class LeadsForConsultantPrefillServlet extends SlingAllMethodsServlet {
 
             LOGGER.debug("responseString: {}", responseString);
             response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json");
             if (responseString != null) {
                 response.getWriter().write(responseString);
             }
@@ -121,6 +122,8 @@ public class LeadsForConsultantPrefillServlet extends SlingAllMethodsServlet {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             response.setStatus(500);
+        } finally {
+            getMethod.releaseConnection();
         }
     }
 

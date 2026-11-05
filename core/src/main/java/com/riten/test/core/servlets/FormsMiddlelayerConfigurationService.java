@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -63,6 +65,7 @@ public class FormsMiddlelayerConfigurationService {
     private String feedbackAcceptPathPost;
     private String[] hiddenFields;
     private String[] hiddenProperties;
+    private String[] allowedHosts;
     private String leadsForConsultantPath;
     private String submitLeadFeedbackPath;
     private String[] questionsAnswersFlowIds;
@@ -109,6 +112,7 @@ public class FormsMiddlelayerConfigurationService {
         hiddenFields = config.hiddenFields();
         submitLeadFeedbackPath=config.submitLeadFeedbackPath();
         hiddenProperties = config.hiddenProperties();
+        allowedHosts = config.allowedHosts();
         questionsAnswersFlowIds = config.questionsAnswersFlowIds();
         LOG.info("Updated/Modified configuration, forms middlelayer");
 
@@ -313,5 +317,12 @@ public String getSubmitLeadFeedbackPath(){return submitLeadFeedbackPath;}
 
     public Map<String, String> getHiddenPropertiesMap() {
         return Arrays.stream(this.hiddenProperties).map(hiddenKeyVal -> hiddenKeyVal.split(":")).collect(Collectors.toMap(hiddenProperty -> hiddenProperty[0], hiddenProperty -> hiddenProperty[1]));
+    }
+
+    public List<String> getAllowedHosts() {
+        return allowedHosts == null ? Collections.emptyList() : Arrays.stream(allowedHosts)
+                .map(String::trim)
+                .filter(host -> !host.isEmpty())
+                .collect(Collectors.toList());
     }
 }

@@ -49,15 +49,18 @@ public class CommercialMailServlet extends SlingAllMethodsServlet {
             };
             LOGGER.debug("params: {}", Arrays.toString(params));
             getMethod.setQueryString(params);
-            LOGGER.info("Sending commercial mail request to {} with query string {}", formsMiddlelayerConfigurationService.getCommercialMailPath(), getMethod.getQueryString());
+            LOGGER.info("Sending commercial mail request to {}", formsMiddlelayerConfigurationService.getCommercialMailPath());
             try {
                 httpClient.executeMethod(getMethod);
                 String responseString = getMethod.getResponseBodyAsString();
                 LOGGER.debug("responseString: {}", responseString);
                 response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json");
                 response.getWriter().write(responseString);
             } catch (Exception e){
                 LOGGER.error(e.getMessage(), e);
+            } finally {
+                getMethod.releaseConnection();
             }
         } else {
             LOGGER.error("formsMiddlelayerConfigurationService is null");

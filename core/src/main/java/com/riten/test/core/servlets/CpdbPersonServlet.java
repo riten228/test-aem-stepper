@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
 
 import static org.apache.sling.api.servlets.HttpConstants.METHOD_GET;
 import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVLET_METHODS;
@@ -61,9 +61,9 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
         if (formsMiddlelayerConfigurationService != null) {
             HttpClient httpClient = new HttpClient();
             HttpMethod getMethod = new GetMethod(formsMiddlelayerConfigurationService.getCpdbPath());
-            LOGGER.debug("Request url querystring {}",request.getQueryString());
+            LOGGER.debug("CPDB search request received");
             NameValuePair[] params = new NameValuePair[]{
-                    new NameValuePair(FIRST_NAME, URLDecoder.decode(request.getParameter(FIRST_NAME), "UTF-8")),
+                    new NameValuePair(FIRST_NAME, decodeParam(request.getParameter(FIRST_NAME))),
                     new NameValuePair(NAME, request.getParameter(NAME)),
                     new NameValuePair(BIRTHDATE, request.getParameter(BIRTHDATE)),
                     new NameValuePair(STI, request.getParameter(STI)),
@@ -76,23 +76,29 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
                     new NameValuePair(GENDER, request.getParameter(GENDER))
             };
             if(StringUtils.isBlank(request.getParameter(FIRST_NAME)) || StringUtils.isBlank(request.getParameter(NAME)) || StringUtils.isBlank(request.getParameter(POSTCODE))){
-                LOGGER.error("Missing first name, name or zipcode, the querystring is {}",request.getQueryString());
+                LOGGER.error("Missing first name, name or zipcode in CPDB search request");
             }
-            LOGGER.debug("params: {}", Arrays.toString(params));
             getMethod.setQueryString(params);
-            LOGGER.info("Sending CPDB search request to {} with query string {}", formsMiddlelayerConfigurationService.getCpdbPath(), getMethod.getQueryString());
+            LOGGER.info("Sending CPDB search request to {}", formsMiddlelayerConfigurationService.getCpdbPath());
 
             try {
                 httpClient.executeMethod(getMethod);
                 String responseString = getMethod.getResponseBodyAsString();
-                LOGGER.debug("responseString: {}", responseString);
+                LOGGER.debug("CPDB response received");
+                response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 response.getWriter().write(responseString);
             } catch (Exception e){
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error("CPDB search request failed: {}", e.getMessage(), e);
+            } finally {
+                getMethod.releaseConnection();
             }
         } else {
             LOGGER.error("formsMiddlelayerConfigurationService is null");
         }
+    }
+
+    private static String decodeParam(String value) throws UnsupportedEncodingException {
+        return value == null ? null : URLDecoder.decode(value, "UTF-8");
     }
 }

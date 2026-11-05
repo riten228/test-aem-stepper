@@ -55,9 +55,12 @@ public class ExternalPrefillServlet extends SlingAllMethodsServlet {
                 String responseString = getMethod.getResponseBodyAsString();
                 LOGGER.debug("responseString: {}", responseString);
                 response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json");
                 response.getWriter().write(responseString);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
+            } finally {
+                getMethod.releaseConnection();
             }
         } else {
             LOGGER.error("formsMiddlelayerConfigurationService is null");

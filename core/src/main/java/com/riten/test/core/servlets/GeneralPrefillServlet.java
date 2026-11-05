@@ -60,11 +60,15 @@ public class GeneralPrefillServlet extends SlingAllMethodsServlet {
                 String responseString = getMethod.getResponseBodyAsString();
                 LOGGER.debug("responseString: {}", responseString);
                 response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json");
                 response.getWriter().write(responseString);
-            }catch (IOException e){
+            } catch (IOException e){
                 LOGGER.error(e.getMessage(), e);
+            } finally {
+                getMethod.releaseConnection();
             }
+        } else {
+            LOGGER.error("formsMiddlelayerConfigurationService is null");
         }
-        LOGGER.debug("formsMiddlelayerConfigurationService is null");
     }
 }

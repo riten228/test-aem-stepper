@@ -255,6 +255,13 @@ public @interface FormsMiddlelayerConfigurationServiceConfig {
     )
     String[] hiddenProperties() default {StringUtils.EMPTY};
 
+    @AttributeDefinition(
+            name = "Allowed hosts",
+            description = "Hosts (e.g. middlelayer.example.com) that form submissions may be sent to over HTTPS. Requests to any other host are rejected",
+            type = AttributeType.STRING
+    )
+    String[] allowedHosts() default {};
+
 
     @AttributeDefinition(
             name = "Submit lead  feedback endpoint",

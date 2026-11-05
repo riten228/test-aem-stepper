@@ -67,7 +67,7 @@ public class CheckAlreadySubmittedInscriptionServlet extends SlingAllMethodsServ
 
             LOGGER.debug("formData data");
             for(String key: formData.keySet()){
-                LOGGER.debug(key+": "+formData.get(key));
+                LOGGER.debug("formData field: {}", key);
             }
 
             Map<String, String> additionalData = new HashMap<>();
@@ -92,14 +92,17 @@ public class CheckAlreadySubmittedInscriptionServlet extends SlingAllMethodsServ
             try {
                 LOGGER.info("CheckAlreadySubmittedInscription servlet - forwarding request to: {}", endPoint);
                 httpClient.executeMethod(postMethod);
+                String responseString = postMethod.getResponseBodyAsString();
+                LOGGER.debug("responseString {}",responseString);
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/json");
+                response.getWriter().write(responseString);
             } catch (IOException | HTTPException e) {
                 LOGGER.error("CheckAlreadySubmittedInscription servlet - error forwarding call", e);
                 response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            } finally {
+                postMethod.releaseConnection();
             }
-            String responseString = postMethod.getResponseBodyAsString();
-            LOGGER.debug("responseString {}",responseString);
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(responseString);
         }
     }
 }

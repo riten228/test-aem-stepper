@@ -71,17 +71,22 @@ public class CSCalculationServlet extends SlingSafeMethodsServlet {
             };
             LOGGER.debug("params: {}", Arrays.toString(params));
             getMethod.setQueryString(params);
-            LOGGER.info("Sending credit simulation request to {} with query string {}", formsMiddlelayerConfigurationService.getCsCalculationPath(), getMethod.getQueryString());
+            LOGGER.info("Sending credit simulation request to {}", formsMiddlelayerConfigurationService.getCsCalculationPath());
             try {
                 int errCode = httpClient.executeMethod(getMethod);
-                LOGGER.info("Call to forms backend ended up in HTTP code '{}' with response {}", errCode, getMethod.getResponseBodyAsString());
+                String responseBody = getMethod.getResponseBodyAsString();
+                LOGGER.info("Call to forms backend ended up in HTTP code '{}'", errCode);
                 if (errCode == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
                     response.sendError(errCode);
+                    return;
                 }
+                response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(getMethod.getResponseBodyAsString());
+                response.getWriter().write(responseBody);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
+            } finally {
+                getMethod.releaseConnection();
             }
         } else {
             LOGGER.error("formsMiddlelayerConfigurationService is null");

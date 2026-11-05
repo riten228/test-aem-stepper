@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component(
         service = CaptchaValidationService.class,
@@ -46,6 +48,8 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
     public static final String RE_CAPTCHA_INVISIBLE="reCaptchaInvisible";
 
     private boolean disabled;
+    private String proxyHost;
+    private int proxyPort;
 
     @Reference
     private CaptchaConfigurationService captchaConfigurationService;
@@ -55,6 +59,8 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
     public void configurationModified(CaptchaValidationServiceConfig config) {
         LOGGER.info("Updating/Modifying configuration, captcha validation");
         this.disabled = config.disabled();
+        this.proxyHost = config.proxyHost();
+        this.proxyPort = config.proxyPort();
         LOGGER.info("Updated/Modified configuration, captcha validation");
 
         LOGGER.debug("disabled: {}", this.disabled);
@@ -68,12 +74,7 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
     boolean succeeded = false;
     HttpClient httpClient = new HttpClient();
 
-    // Configure proxy if available
-    /*String proxyHost = captchaConfigurationService.getProxyHost(); // Add this method to your service
-    Integer proxyPort = captchaConfigurationService.getProxyPort(); // Add this method to your service*/
-    String proxyHost = "proxy-app.belwired.net"; // e.g., "proxy.company.com"
-    Integer proxyPort = 8080; // e.g., 8080
-    if (StringUtils.isNotEmpty(proxyHost) && proxyPort != null && proxyPort > 0) {
+    if (StringUtils.isNotEmpty(proxyHost) && proxyPort > 0) {
       HostConfiguration hostConfig = new HostConfiguration();
       hostConfig.setProxy(proxyHost, proxyPort);
       httpClient.setHostConfiguration(hostConfig);
@@ -95,12 +96,12 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
 
       postMethod.addParameter("response", captchaCode);
       try {
-        LOGGER.error("Verifying reCAPTCHA with response: {}", captchaCode);
+        LOGGER.debug("Verifying reCAPTCHA (v2/invisible)");
         int returnCode = httpClient.executeMethod(postMethod);
         LOGGER.debug("returnCode: {}", returnCode);
         if (returnCode == HttpStatus.SC_OK) {
           String responseString = postMethod.getResponseBodyAsString();
-          LOGGER.debug("responseString: {}", responseString);
+          LOGGER.debug("responseString received");
           CaptchaResponse captchaValidationResponse = new Gson().fromJson(responseString, CaptchaResponse.class);
           if (captchaValidationResponse != null && captchaValidationResponse.success) {
             succeeded = true;
@@ -116,53 +117,52 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
   }
 
   public boolean verifyRecaptcha(String token) {
+    boolean succeeded = false;
+    if (captchaConfigurationService == null || StringUtils.isEmpty(token)) {
+      return false;
+    }
+
     String secretKey = captchaConfigurationService.getSecretKeyV3();
     String verifyUrl = captchaConfigurationService.getVerificationUrl();
-    LOGGER.info("verifyRecaptcha, secretKey {} >> ", secretKey);
-    LOGGER.info("verifyRecaptcha, verifyUrl {} >> ", verifyUrl);
-    boolean succeeded = false;
+    LOGGER.debug("verifyRecaptcha, verifyUrl {}", verifyUrl);
 
-    if (StringUtils.isNotEmpty(token) && captchaConfigurationService != null) {
-      // Proxy configuration (replace with your actual proxy details)
-      String proxyHost = "proxy-app.belwired.net"; // e.g., "proxy.company.com"
-      int proxyPort = 8080; // e.g., 8080
+    HttpHost proxy = null;
+    if (StringUtils.isNotEmpty(proxyHost) && proxyPort > 0) {
+      proxy = new HttpHost(proxyHost, proxyPort);
+    }
+    RequestConfig config = RequestConfig.custom()
+      .setProxy(proxy)
+      .setConnectTimeout(5000) // 5 seconds
+      .setSocketTimeout(5000)  // 5 seconds
+      .build();
 
-      HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-      RequestConfig config = RequestConfig.custom()
-        .setProxy(proxy)
-        .setConnectTimeout(5000) // 5 seconds
-        .setSocketTimeout(5000)  // 5 seconds
-        .build();
+    try (CloseableHttpClient httpClient = HttpClients.custom()
+      .setDefaultRequestConfig(config)
+      .build()) {
 
-      try (CloseableHttpClient httpClient = HttpClients.custom()
-        .setDefaultRequestConfig(config)
-        .build()) {
+      HttpPost httpPost = new HttpPost(verifyUrl);
+      httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
-        HttpPost httpPost = new HttpPost(verifyUrl);
-        httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+      // Form values must be URL-encoded to prevent parameter injection
+      String body = "secret=" + URLEncoder.encode(secretKey, StandardCharsets.UTF_8.name())
+        + "&response=" + URLEncoder.encode(token, StandardCharsets.UTF_8.name());
+      httpPost.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
 
-        // Add parameters to the request body
-        StringEntity params = new StringEntity(
-          "secret=" + secretKey + "&response=" + token
-        );
-        httpPost.setEntity(params);
+      LOGGER.debug("Verifying reCAPTCHA V3");
+      String responseString = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
+      LOGGER.debug("responseString received");
 
-        LOGGER.info("Verifying reCAPTCHA V3 with response: {}", token);
-        String responseString = EntityUtils.toString(httpClient.execute(httpPost).getEntity());
-        LOGGER.debug("responseString: {}", responseString);
+      JSONObject jsonResponse = new JSONObject(responseString);
+      double scoreThreshold = Double.parseDouble(captchaConfigurationService.getRecaptchaV3Threshold());
+      LOGGER.debug("verifyRecaptcha, scoreThreshold from config {}", scoreThreshold);
+      LOGGER.debug("verifyRecaptcha, response score {}", jsonResponse.getDouble("score"));
+      LOGGER.debug("verifyRecaptcha, response isSuccess {}", jsonResponse.getBoolean("success"));
 
-        JSONObject jsonResponse = new JSONObject(responseString);
-        double scoreThreshold = Double.parseDouble(captchaConfigurationService.getRecaptchaV3Threshold());
-        LOGGER.info("verifyRecaptcha, scoreThreshold from config {} >> ", scoreThreshold);
-        LOGGER.info("verifyRecaptcha, response score {} >> ", jsonResponse.getDouble("score"));
-        LOGGER.info("verifyRecaptcha, response isSuccess {} >> ", jsonResponse.getBoolean("success"));
-
-        if (jsonResponse.getBoolean("success") && jsonResponse.getDouble("score") >= scoreThreshold) {
-          succeeded = true;
-        }
-      } catch (final IOException e) {
-        LOGGER.error("reCAPTCHA validation failed", e);
+      if (jsonResponse.getBoolean("success") && jsonResponse.getDouble("score") >= scoreThreshold) {
+        succeeded = true;
       }
+    } catch (final IOException e) {
+      LOGGER.error("reCAPTCHA validation failed", e);
     }
     return succeeded;
   }
@@ -183,6 +183,18 @@ public class CaptchaValidationService extends SlingAllMethodsServlet {
                 type = AttributeType.BOOLEAN
         )
         boolean disabled() default false;
+
+        @AttributeDefinition(
+                name = "Proxy host",
+                description = "Optional proxy host used for reCAPTCHA verification requests. Leave empty for a direct connection"
+        )
+        String proxyHost() default "";
+
+        @AttributeDefinition(
+                name = "Proxy port",
+                description = "Proxy port used together with the proxy host"
+        )
+        int proxyPort() default 0;
     }
 
 }

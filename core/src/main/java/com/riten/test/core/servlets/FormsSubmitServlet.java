@@ -8,6 +8,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -26,6 +28,8 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -145,7 +149,7 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 String fieldValue = entry.getValue();
 
                 if (StringUtils.isNotBlank(fieldValue) && HTML_TAG.matcher(fieldValue).find()) {
-                    LOGGER.warn("HTML detected in field {} with value {} → blocking submit", fieldName, fieldValue);
+                    LOGGER.warn("HTML detected in field {} - blocking submit", fieldName);
                     String errorPage = MessageFormat.format(formsMiddlelayerConfigurationService.getErrorPagePath(), lang);
                     response.sendRedirect(errorPage);
                     return; // STOP submit
@@ -349,12 +353,12 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
 
         LOGGER.debug("additionalData data");
         for (String key : additionalData.keySet()) {
-            LOGGER.debug(key + ": " + additionalData.get(key));
+            LOGGER.debug("additionalData field: {}", key);
         }
 
         LOGGER.debug("formData data");
         for (String key : formData.keySet()) {
-            LOGGER.debug(key + ": " + formData.get(key));
+            LOGGER.debug("formData field: {}", key);
         }
 
         Map<String, String> requestBody = Stream.of(additionalData.entrySet(), formData.entrySet())
@@ -380,7 +384,12 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 getMethod.setQueryString(urlParams.toArray(new NameValuePair[urlParams.size()]));
                 try {
                     LOGGER.info("Forms action servlet - forwarding request to: {}", endPoint);
-                    returnCode = httpClient.executeMethod(getMethod);
+                    if (!isAllowedEndpoint(endPoint)) {
+                        LOGGER.error("Forms submit servlet - endpoint not in allowed hosts, rejecting request");
+                        returnCode = HttpStatus.SC_FORBIDDEN;
+                    } else {
+                        returnCode = httpClient.executeMethod(getMethod);
+                    }
                 } catch (IOException | HTTPException e) {
                     LOGGER.error("Forms action servlet - error forwarding call", e);
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -400,6 +409,8 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body");
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    getMethod.releaseConnection();
                 }
             } else {
                 // Submit Data
@@ -408,9 +419,14 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 postMethod.setRequestEntity(new StringRequestEntity(requestBodyAsJSON, "application/json", "UTF-8"));
 
                 try {
-                    LOGGER.info("Forms action servlet - forwarding request to: {}", endPoint);
-                    LOGGER.debug("Method path: {} & queryString {} & toString {}", postMethod.getPath(), postMethod.getQueryString(), postMethod.toString());
-                    returnCode = httpClient.executeMethod(postMethod);
+                    if (!isAllowedEndpoint(endPoint)) {
+                        LOGGER.error("Forms submit servlet - endpoint not in allowed hosts, rejecting request");
+                        returnCode = HttpStatus.SC_FORBIDDEN;
+                    } else {
+                        LOGGER.info("Forms action servlet - forwarding request to: {}", endPoint);
+                        LOGGER.debug("Method path: {}", postMethod.getPath());
+                        returnCode = httpClient.executeMethod(postMethod);
+                    }
                 } catch (IOException | HTTPException e) {
                     LOGGER.error("Forms action servlet - error forwarding call", e);
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -440,6 +456,8 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
                 } catch (IOException | JSONException e) {
                     LOGGER.error("Forms action servlet - error getting response json body: {}", e.getMessage(), e);
                     returnCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                } finally {
+                    postMethod.releaseConnection();
                 }
             }
 
@@ -595,8 +613,10 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
 
     private String formatUrlParams(List<NameValuePair> urlParams) {
         if (!urlParams.isEmpty()) {
-            String url = urlParams.stream().map(urlParam -> "&" + urlParam.getName() + "=" + urlParam.getValue()).collect(Collectors.joining()).substring(1);
-            LOGGER.debug("urlParams formatted: {}", url);
+            String url = urlParams.stream()
+                    .map(urlParam -> "&" + encodeUrlComponent(urlParam.getName()) + "=" + encodeUrlComponent(urlParam.getValue()))
+                    .collect(Collectors.joining()).substring(1);
+            LOGGER.debug("urlParams formatted with {} parameter(s)", urlParams.size());
             if (StringUtils.isNotEmpty(url)) {
                 return "?" + url;
             }
@@ -604,6 +624,21 @@ public class FormsSubmitServlet extends SlingAllMethodsServlet {
         }
         LOGGER.info("urlParams is empty");
         return StringUtils.EMPTY;
+    }
+
+    private static String encodeUrlComponent(String value) {
+        return value == null ? StringUtils.EMPTY : URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private boolean isAllowedEndpoint(String endPoint) {
+        try {
+            URI uri = new URI(endPoint, true);
+            return "https".equalsIgnoreCase(uri.getScheme())
+                    && formsMiddlelayerConfigurationService.getAllowedHosts().contains(uri.getHost());
+        } catch (URIException e) {
+            LOGGER.warn("Rejecting malformed endpoint: {}", e.getMessage());
+            return false;
+        }
     }
 
     private String setSubmitType(String hiddenParameters, String submitType) {
