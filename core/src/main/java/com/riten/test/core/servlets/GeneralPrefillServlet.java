@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import static org.apache.sling.api.servlets.HttpConstants.METHOD_GET;
 import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVLET_METHODS;
@@ -36,9 +38,14 @@ public class GeneralPrefillServlet extends SlingAllMethodsServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralPrefillServlet.class);
     private static final String TRANSACTION_KEY = "transactionKey";
     private static final String EVENT_KEY = "eventKey";
+    private static final Pattern SAFE_PARAM_PATTERN = Pattern.compile("^[A-Za-z0-9_\\-]{1,128}$");
 
     @Reference
     private FormsMiddlelayerConfigurationService formsMiddlelayerConfigurationService;
+
+    private static boolean isValidParam(final String value) {
+        return value != null && SAFE_PARAM_PATTERN.matcher(value).matches();
+    }
 
     @Override
     protected void doGet(final SlingHttpServletRequest request, final SlingHttpServletResponse response) throws ServletException, IOException {
@@ -46,11 +53,19 @@ public class GeneralPrefillServlet extends SlingAllMethodsServlet {
             String generalPrefillPath = formsMiddlelayerConfigurationService.getGeneralPrefillPath();
             LOGGER.debug("generalPrefillPath: {}", generalPrefillPath);
 
+            String transactionKey = request.getParameter(TRANSACTION_KEY);
+            String eventKey = request.getParameter(EVENT_KEY);
+            if (!isValidParam(transactionKey) || !isValidParam(eventKey)) {
+                LOGGER.warn("Invalid {} or {} parameter", TRANSACTION_KEY, EVENT_KEY);
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
             HttpClient httpClient = new HttpClient();
             HttpMethod getMethod = new GetMethod(generalPrefillPath);
             NameValuePair[] params = new NameValuePair[]{
-                    new NameValuePair(TRANSACTION_KEY, request.getParameter(TRANSACTION_KEY)),
-                    new NameValuePair(EVENT_KEY, request.getParameter(EVENT_KEY))
+                    new NameValuePair(TRANSACTION_KEY, transactionKey),
+                    new NameValuePair(EVENT_KEY, eventKey)
             };
             LOGGER.debug("params: {}", Arrays.toString(params));
             getMethod.setQueryString(params);
