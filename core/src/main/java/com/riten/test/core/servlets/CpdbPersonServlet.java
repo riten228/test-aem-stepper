@@ -1,9 +1,8 @@
 package com.riten.test.core.servlets;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -19,6 +18,8 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static org.apache.sling.api.servlets.HttpConstants.METHOD_GET;
 import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVLET_METHODS;
@@ -52,6 +53,7 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
     private static final String POSTCODE = "Postcode";
     private static final String PHONE = "Phone";
     private static final String GENDER = "Gender";
+    private static final String HTTPS_PREFIX = "https://";
 
     @Reference
     private FormsMiddlelayerConfigurationService formsMiddlelayerConfigurationService;
@@ -59,8 +61,14 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
     @Override
     protected void doGet(final SlingHttpServletRequest request, final SlingHttpServletResponse response) throws ServletException, IOException {
         if (formsMiddlelayerConfigurationService != null) {
+            String cpdbPath = formsMiddlelayerConfigurationService.getCpdbPath();
+            if (!StringUtils.startsWithIgnoreCase(cpdbPath, HTTPS_PREFIX)) {
+                LOGGER.error("CPDB path must use https; request not sent");
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return;
+            }
             HttpClient httpClient = new HttpClient();
-            HttpMethod getMethod = new GetMethod(formsMiddlelayerConfigurationService.getCpdbPath());
+            PostMethod postMethod = new PostMethod(cpdbPath);
             LOGGER.debug("CPDB search request received");
             NameValuePair[] params = new NameValuePair[]{
                     new NameValuePair(FIRST_NAME, decodeParam(request.getParameter(FIRST_NAME))),
@@ -78,12 +86,12 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
             if(StringUtils.isBlank(request.getParameter(FIRST_NAME)) || StringUtils.isBlank(request.getParameter(NAME)) || StringUtils.isBlank(request.getParameter(POSTCODE))){
                 LOGGER.error("Missing first name, name or zipcode in CPDB search request");
             }
-            getMethod.setQueryString(params);
-            LOGGER.info("Sending CPDB search request to {}", formsMiddlelayerConfigurationService.getCpdbPath());
+            postMethod.setRequestBody(params);
+            LOGGER.info("Sending CPDB search request to {}", cpdbPath);
 
             try {
-                httpClient.executeMethod(getMethod);
-                String responseString = getMethod.getResponseBodyAsString();
+                httpClient.executeMethod(postMethod);
+                String responseString = postMethod.getResponseBodyAsString();
                 LOGGER.debug("CPDB response received");
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -91,7 +99,7 @@ public class CpdbPersonServlet extends SlingAllMethodsServlet {
             } catch (Exception e){
                 LOGGER.error("CPDB search request failed: {}", e.getMessage(), e);
             } finally {
-                getMethod.releaseConnection();
+                postMethod.releaseConnection();
             }
         } else {
             LOGGER.error("formsMiddlelayerConfigurationService is null");
